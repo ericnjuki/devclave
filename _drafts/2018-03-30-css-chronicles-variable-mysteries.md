@@ -1,17 +1,17 @@
 ---
 layout: post
 title: "CSS Chronicles: Variable Mysteries"
-# date: 2018-03-30 6:34:00 +0300
+date: 2018-03-30 6:34:00 +0300
 tags: css
 ---
 
-[Go to _real_ start of article](#Intro)
+[Go to _real_ start of article](#intro)
 
-To mark the beginning of a new month, I decided to equip myself with new skills on my journey towards being an exceptional designer. Naively, I decided to conquer css. All of it. One. Property. Atatime. Turns out one does not simply learn all of css, but one can try. So I'm starting with all the stuff I don't know. First up: CSS Variables...
+To mark the beginning of a new month, I decided to equip myself with new skills on my journey towards becoming an exceptional designer. Naively, I decided to conquer CSS. All of it. One. Property. Atatime. Turns out one does not simply learn all of CSS, but one can try. And so begins the journey towards CSS Mastery. First up: CSS Variables...
 
 ### Intro
 
-CSS Variables are a actually a combination of two CSS features:
+CSS Variables are actually a combination of two CSS features:
 
 * [Custom Properties](#custom-properties)
 * [var() function](#var-function)
@@ -37,7 +37,6 @@ _Syntax_
 
 /* or a javascript statement */
 {% endhighlight %}
+**[⬆ back to top](#intro)**
 
 #### var() Function
-
-**[⬆ back to top](#intro)**
