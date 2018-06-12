@@ -1,0 +1,16 @@
+<footer>
+    <!-- {%- include social.html -%} -->
+    <a class="typical-link" href="{{ "/feed.xml" | relative_url }}">subscribe via RSS</a>
+    <svg class="svg-icon"><use xlink:href="{{ '/assets/icons/minima-social-icons.svg#twitter' | relative_url }}"></use></svg> 
+    <a class="typical-link" href="https://www.twitter.com/{{ site.twitter_username| cgi_escape | escape }}">{{ site.twitter_username| escape }}</a>
+    <svg class="svg-icon"><use xlink:href="{{ '/assets/icons/minima-social-icons.svg#github' | relative_url }}"></use></svg>
+    <a class="typical-link" href="https://github.com/{{ site.github_username| cgi_escape | escape }}">{{ site.github_username| escape }}</a>
+      <!-- <span class="username">
+
+      </span> -->
+    
+      <!-- <span class="username">
+      </span> -->
+    <!-- <p class="rss-subscribe">subscribe <a class="typical-link" href="{{ "/feed.xml" | relative_url }}">via RSS</a></p> -->
+    <p>copyright ( ͡° ͜ʖ ͡°) 2018 devclave</p>
+</footer>

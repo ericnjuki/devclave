@@ -11,7 +11,7 @@ github_username:  devclave
 # Build settings
 markdown: kramdown
 # theme: minima
-theme: oldbook
+# theme: oldbook
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
