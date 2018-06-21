@@ -6,7 +6,7 @@
   width: 16px;
   height: 16px;
 }
-pre {
+pre, pre.highlight {
   background-color: #eaeac5;
   padding: 1em;
   margin: 1em 0;
@@ -202,8 +202,12 @@ article a:hover, .typical-link:hover {
 article h2, article h3, article h4 {
   font-weight: 600;
 }
-article ul {
+article ul, article ol {
+  list-style-position: outside;
   list-style: initial;
+}
+article ol {
+    list-style-type: decimal;
 }
 .article-spacing {
   margin-bottom: 3em;
