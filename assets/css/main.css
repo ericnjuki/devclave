@@ -6,10 +6,17 @@
   width: 16px;
   height: 16px;
 }
+code {
+    background-color: #eaeac5;
+    padding: 0.1em 0.2em;
+    border-radius: 0.2em;
+}
+
+/* some people don't enclose their code in pre and this may be a problem.. */
 pre, pre.highlight {
   background-color: #eaeac5;
   padding: 1em;
-  margin: 1em 0;
+  margin: 1.5em 0;
   border-radius: 0.2em;
   overflow-x: auto;
 }
@@ -200,7 +207,15 @@ article a:hover, .typical-link:hover {
   
 }
 article h2, article h3, article h4 {
-  font-weight: 600;
+  font-size: 1.2em;
+  font-weight: 800;
+  margin-top: 2em;
+}
+article h5 {
+    /* font-style: italic; */
+    font-weight: 600;
+    margin-top: 1em;
+    /* text-indent: 0.5em; */
 }
 article ul, article ol {
   list-style-position: outside;
