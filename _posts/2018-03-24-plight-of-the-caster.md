@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "Plight of The Caster"
-date:   2018-03-24 13:03:00 +0300
+title: "Plight of The Caster"
+date: 2018-03-24 13:03:00 +0300
 tags: fooling-around
 ---
 

@@ -181,7 +181,7 @@ footer {
 }
   .article-content h1 {
     color: #b70a0a;
-    font-size: 22px;
+    font-size: 1.6em;
     font-weight: 800;
     padding-bottom: 0.6em;
     text-transform: none;
@@ -190,6 +190,10 @@ footer {
     text-transform: none;
     font-size: 12px;
     font-weight: 200;
+    display: block;
+  }
+  .article-metadata .by {
+    color: #0a1eb7;
   }
 
   .article-content article {
@@ -206,16 +210,27 @@ article a:hover, .typical-link:hover {
   color: #b70a0a;
   
 }
-article h2, article h3, article h4 {
-  font-size: 1.2em;
+article h2 {
+  font-size: 1.3em;
   font-weight: 800;
   margin-top: 2em;
 }
+article h3 {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin-top: 2em;
+}
+article h4 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-top: 2em;
+}
 article h5 {
-    /* font-style: italic; */
     font-weight: 600;
     margin-top: 1em;
-    /* text-indent: 0.5em; */
+}
+article h6 {
+  font-size: 0.8em;
 }
 article ul, article ol {
   list-style-position: outside;
@@ -223,6 +238,18 @@ article ul, article ol {
 }
 article ol {
     list-style-type: decimal;
+}
+article img {
+  width: 100%;
+  margin: 0.8em 0;
+}
+  .dropcaps {
+  font-weight: 800;
+  font-size: 3em;
+  float: left;
+  line-height: 1em;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  padding-right: 8px;
 }
 .article-spacing {
   margin-bottom: 3em;
