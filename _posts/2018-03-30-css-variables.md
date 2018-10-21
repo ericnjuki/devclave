@@ -11,7 +11,7 @@ tags: css
 * [Examples](#nifty-examples)
 
 ### Intro
-To mark the beginning of a new month, I decided to equip myself with new skills on my journey towards becoming an exceptional designer. Naïvely, I decided to conquer CSS. All of it. One. Property. Atatime. Turns out one does not simply learn all of CSS, but one can try. And so begins the journey towards CSS Mastery. First up: CSS Variables...
+<span class="dropcaps">I</span>o mark the beginning of a new month, I decided to equip myself with new skills on my journey towards becoming an exceptional designer. Naïvely, I decided to conquer CSS. All of it. One. Property. Atatime. Turns out one does not simply learn all of CSS, but one can try. And so begins the journey towards CSS Mastery. First up: CSS Variables...
 
 ### What are they? (CSS variables)
 
