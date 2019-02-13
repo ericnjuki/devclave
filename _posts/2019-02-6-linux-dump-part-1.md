@@ -9,11 +9,11 @@ tags: linux
 
 ### Contents
 * [Printing](#printing), [printing gotchas](#gotchas), [printing errors](#errors-you-might-encounter-while-printing)
-* [Remote Access](#remote-access)
-* [Specific things](#little-things)
+* [Remote Access](#remote-access), [ssh Errors](#ssh-errors)
+* [Specific things](#little-things): [disabling users list on ubuntu login screen](#disabling-user-list-at-ubuntu-login-screen), [running apps from terminal in background](#running-gedit-in-the-background-from-terminal), [make ubuntu say stuff](#make-ubuntu-say-things), [check linux distro](#check-linux-distro), [get IP and hostname](#get-ip-address-and-hostname), [open notepad++ from cli](#open-a-file-in-notepad-using-cmd), [copy files to ftp server(windows)](#copy-files-to-ftp-server-in-windows)
 * [Commands dump](#commands)
 
-
+<!-- region printing -->
 ### Printing
 
 The recommended way to print in ubuntu is to use CUPS (Common Unix Printing System) as opposed to the (old) BSD printing system.
@@ -80,8 +80,9 @@ Check CUPS logs (if you have CUPS installed) which can be found here:
 `found in /var/log/cups/error_log`
 
 Look [here](https://wiki.ubuntu.com/DebuggingPrintingProblems) (official ubuntu page on debugging printing problems)
+<!-- endregion printing -->
 
-
+<!-- region remote-access -->
 ### Remote Access
 
 #### using ssh (passwordless ssh login)
@@ -102,6 +103,10 @@ ssh-keygen -t rsa
 cat .ssh/public_key.pub | ssh user@host 'cat >> .ssh/authorized_keys'
 
 # 4 set permissions on host .ssh folder and authorized_keys file
+# this is important, otherwise ssh will always require a password
+# from SO: "~, ~/.ssh and ~/.ssh/authorized_keys must be writable only by you (700 - 755)
+# "your ~/.ssh/authorized_keys must be readable (at least 400) but writeable (600)
+# if you'll need to add more keys to it
 ssh user@host "chmod 700 .ssh; chmod 640 .ssh/authorized_keys"
 
 # 2.5 OR, after generating the key in step 2, just do this which will do step 3 and 4 for you
@@ -127,8 +132,9 @@ check which ciphers your client supports:
 if any of the ciphers are also supported by the server (Their offer: ...), then you can force the use of those specific ciphers:
 
 `ssh -c aes256-cbc usr@host`
+<!-- endregion remote-access -->
 
-
+<!-- region little-things -->
 ### Little things
 ##### Disabling user list at ubuntu login screen
 _one liner:_
@@ -202,9 +208,9 @@ X.X.X.X
 ##### Copy files to ftp server in windows
 -you can map a network location to a local drive in windows by going to THIS PC > Map network drive
 -this would allow you to upload files to an ftp server if you map one. (why? because browsers have limited ftp support and can only download but not upload; other than browsers you'd need a 3rd party ftp client to upload to an ftp server)
+<!-- endregion little-things -->
 
-
-
+<!-- region specific-cmds -->
 ## Commands
 ### Packages Commands
 {% highlight bash %}
@@ -325,3 +331,5 @@ scp [-r] * remoteuser@remoteserver:path # copy all (can copy directories)
 # there are two slashes after the port number, 22 (which you can exclude btw) because the second one
 # stands for root directory
 ```
+<!-- endregion specific-cmds -->
+...to be continued
