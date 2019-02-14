@@ -10,8 +10,11 @@ tags: linux
 ### Contents
 * [Printing](#printing), [printing gotchas](#gotchas), [printing errors](#errors-you-might-encounter-while-printing)
 * [Remote Access](#remote-access), [ssh Errors](#ssh-errors)
-* [Specific things](#little-things): [disabling users list on ubuntu login screen](#disabling-user-list-at-ubuntu-login-screen), [running apps from terminal in background](#running-gedit-in-the-background-from-terminal), [make ubuntu say stuff](#make-ubuntu-say-things), [check linux distro](#check-linux-distro), [get IP and hostname](#get-ip-address-and-hostname), [open notepad++ from cli](#open-a-file-in-notepad-using-cmd), [copy files to ftp server(windows)](#copy-files-to-ftp-server-in-windows)
+* [Desktop Environments](#desktop-environments), [DE, DM, WM?](#desktop-environments-display-mangers-window-managers)
+* [Specific things](#little-things): [disabling users list on ubuntu login screen](#disabling-user-list-at-ubuntu-login-screen), [running apps from terminal in background](#running-gedit-in-the-background-from-terminal), [make ubuntu say stuff](#make-ubuntu-say-things), [check linux distro](#check-linux-distro), [get IP and hostname](#get-ip-address-and-hostname), [open notepad++ from cli](#open-a-file-in-notepad-using-cmd), [copy files to ftp server(windows)](#copy-files-to-ftp-server-in-windows), [VSCode Code Snippets](#VSCode code snippets)
 * [Commands dump](#commands)
+* [Trouble shooting](#troubleshooting), [OpenSUSE](#opensuse), [Booting to virtual terminal](booting-to-virtual-terminal)
+* [References](#references)
 
 <!-- region printing -->
 ### Printing
@@ -120,9 +123,8 @@ ssh user@host
 
 #### ssh errors
 -Attempting to ssh into windows:
-```
-"Unable to negotiate with <IP> port 22: no matching cipher found. Their offer: aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc"
-```
+
+`"Unable to negotiate with <IP> port 22: no matching cipher found. Their offer: aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc"`
 
 -FIX:
 check which ciphers your client supports: 
@@ -133,6 +135,48 @@ if any of the ciphers are also supported by the server (Their offer: ...), then 
 
 `ssh -c aes256-cbc usr@host`
 <!-- endregion remote-access -->
+
+<!-- region desktop-environments -->
+### Desktop environments
+Stumbled on these when trying to figure out how to speed up a slow machine.
+Here's my general assessment of popular linux DEs based on a quick read:
+##### KDE
+- Robust and highly customizable
+- Heavy and clunky
+- OpenSUSE, Kubuntu
+
+##### Gnome (3)
+- Modern, Graphically heavy
+- Mother of Cinammon, Unity
+- Debian, Fedora, Ubuntu Gnome
+- Gnome 2, though deprecated is much more lightweight
+
+##### MATE
+- Based on Gnome 2
+- Built to be lightweight
+- Kind on memory
+- Highly customizable
+- Ubuntu MATE
+
+##### The rest
+Cinammon (linux Mint), LXDE (Lubuntu, lightweight), Xfce (Xubuntu, Manjaro, lightweight), Pantheon (Elementary OS, beautiful)
+
+##### lightdm/gdm
+-LightDM is an x display manager that aims to be lightweight, fast, extensible and multi-desktop
+-gdm (the GNOME Display Manager) is a display manager (a graphical login program) for the windowing systems X11 and Wayland.It is a highly configurable reimplementation of xdm, the X Display Manager
+
+#### Desktop Environments, Display Mangers, Window Managers?
+from [StackOverflow](https://unix.stackexchange.com/questions/20385/windows-managers-vs-login-managers-vs-display-managers-vs-desktop-environment?rq=1):
+
+* Xorg, XFree86 and X11 are display servers. This creates the graphical environment.
+[gkx]dm (and others) are display managers. A login manager is a synonym. This is the first X program run by the system if the system (not the user) is starting X and allows you to log on to the local system, or network systems.
+* A window manager controls the placement and decoration of windows. That is, the window border and controls are the decoration. Some of these are stand alone (WindowMaker, sawfish, fvwm, etc). Some depend on an accompanying desktop environment.
+* A desktop environment such as XFCE, KDE, GNOME, etc. are suites of applications designed to integrate well with each other to provide a consistent experience.
+
+- In theory (and mostly so in practice) any of those components are interchangeable. You can run kmail using GNOME with WindowMaker on Xorg.
+
+
+<!-- endregion desktop-environments -->
 
 <!-- region little-things -->
 ### Little things
@@ -168,38 +212,38 @@ OR\\
 
 ##### Get IP address and hostname
 {% highlight bash %}
-hostname # prints hostname
+  hostname # prints hostname
 
-hostname -I # prints IP address
+  hostname -I # prints IP address
 
-# if the above (for IP) doesn't work e.g. in OpenSUSE, try this:
-ifconfig -a | grep -iw inet | grep -v '127.0.0.1' | awk '{ print $2}' | cut -f2- -d:
+  # if the above (for IP) doesn't work e.g. in OpenSUSE, try this:
+  ifconfig -a | grep -iw inet | grep -v '127.0.0.1' | awk '{ print $2}' | cut -f2- -d:
 
-# let's deconstruct that...
+  # let's deconstruct that...
 
-ifconfig -a # gives a whole bunch of info related to currently connected network devices
+  ifconfig -a # gives a whole bunch of info related to currently connected network devices
 
-# '|' pipes (sends) the output of ifconfig -a to the next command:
-grep -iw inet 
-# returns every line that has 'inet' in it. 
-# -i = case-insensitive match (openSUSE gives its result in all caps, ubuntu does not)
-# -w = exact word match (otherwise grep matches things like inet6 or inetBLA which lie outside our interest)
+  # '|' pipes (sends) the output of ifconfig -a to the next command:
+  grep -iw inet 
+  # returns every line that has 'inet' in it. 
+  # -i = case-insensitive match (openSUSE gives its result in all caps, ubuntu does not)
+  # -w = exact word match (otherwise grep matches things like inet6 or inetBLA which lie outside our interest)
 
-# the resulting lines get piped to:
-grep -v '127.0.0.1' 
-# grep -v is a reverse match i.e "return all lines that DO NOT have this"
-# '127.0.0.1' is... I forgot what's special about it, but we don't want it (TODO)
+  # the resulting lines get piped to:
+  grep -v '127.0.0.1' 
+  # grep -v is a reverse match i.e "return all lines that DO NOT have this"
+  # '127.0.0.1' is... I forgot what's special about it, but we don't want it (TODO)
 
-# i forgot what the awk does also... (TODO)
-# ok so after the awk command, the result looks something like this:
+  # i forgot what the awk does also... (TODO)
+  # ok so after the awk command, the result looks something like this:
 
-addr: X.X.X.X
+  addr: X.X.X.X
 
-# so we want to remove the 'addr: ' part which is why we pipe that result to cut:
-cut -f2- -d:
-# read about the cut in the commands section below, but this cut splits its input into 2 fields
-# using a colon ':' as the delimiter and returns the second field (the part after the colon, which is the actual IP):
-X.X.X.X
+  # so we want to remove the 'addr: ' part which is why we pipe that result to cut:
+  cut -f2- -d:
+  # read about the cut in the commands section below, but this cut splits its input into 2 fields
+  # using a colon ':' as the delimiter and returns the second field (the part after the colon, which is the actual IP):
+  X.X.X.X
 {% endhighlight %}
 
 ##### Open a file in notepad++ using cmd
@@ -208,6 +252,33 @@ X.X.X.X
 ##### Copy files to ftp server in windows
 -you can map a network location to a local drive in windows by going to THIS PC > Map network drive
 -this would allow you to upload files to an ftp server if you map one. (why? because browsers have limited ftp support and can only download but not upload; other than browsers you'd need a 3rd party ftp client to upload to an ftp server)
+
+##### VSCode code snippets:
+{% highlight json %}
+  {
+    "For_Loop": {
+      "prefix": "for",
+      "body": [
+        "for (const ${2:element} of ${1:array}) {",
+        "\t$0",
+        "}"
+      ],
+    "description": "For Loop"
+  }
+}
+{% endhighlight %}
+KEY:
+
+-`${1-based_index_of_traversal:initial_default}` - placeholders (tab stops)
+
+-`$0` - final tab stop
+
+-`\t` - insert tab
+
+-each element of "body" is a line
+
+-You can also use this [snippet generator app](https://snippet-generator.app)
+
 <!-- endregion little-things -->
 
 <!-- region specific-cmds -->
@@ -326,10 +397,66 @@ scp [-r] * remoteuser@remoteserver:path # copy all (can copy directories)
 {% endhighlight %}
 
 -Create/Edit files in remote (using vim)
+
+{% highlight bash %}
 `vi scp://user@host:22//home/user/Documents/file1`
-```
 # there are two slashes after the port number, 22 (which you can exclude btw) because the second one
 # stands for root directory
-```
+{% endhighlight %}
+
 <!-- endregion specific-cmds -->
+
+<!-- region troubleshooting -->
+### Troubleshooting
+#### OpenSUSE
+##### Booting to virtual terminal
+Possible issues:
+
+###### 1\. Default target is not graphical:
+
+{% highlight bash %}
+  systemctl get-default # something other than graphical.target
+  # FIX:
+  systemctl set-default graphical.target
+{% endhighlight %}
+
+if default is `graphical.target` then maybe the virtual terminal was activated by accident. Force revert to gui by doing:
+
+{% highlight bash %}
+  CTRL+ALT+F7 # if doesn't work do CTRL+ALT+(F1-F12)
+
+  # if that still doesn't work force booting to gui:
+  init 5
+{% endhighlight %}
+
+###### 2\. Insufficient space on disk
+
+Try running `startx` from the virtual terminal (after logging in to root)
+if you get an error saying "No space left on device" or "not enough space?", it's possible there's a drive taking up too much space.
+
+<br>Run `df` and scan for anything close to "100%" on the `use` column. For me everything in `dev/sda7` was full. This happended to be where `/var` was mounted.
+
+<br>From [StackOverflow](https://superuser.com/questions/1127028/startx-doesnt-work-not-enough-space):
+
+-Run `sudo du -smx * .[^.]* | sort -n`
+-The `-s (--summarize)` option prints the total size for each file/directory.
+-The `-m` option prints the disk space used by each file/directory in Megabytes.
+
+-The `-x (--one-file-system)` option forces du to remain on the initial filesystem. This leaves out irrelevant (to this end!) info like all files in /run, /sys, /dev and/or /proc.
+
+-The `[^.].*` includes hidden files while excluding the parent directory, ..).
+
+-Finally, sorting the list numerically conveniently displays the directories taking up the most amount of space at the end of the list.
+
+-You then change into the directory taking up the most space and repeat the process for its subdirectories. Eventually you should find the culprit.
+
+<br>For me though, `/var/tmp` was taking up 28 out of the allocated 30 GB for its partition.
+A simple `sudo rm -rf /var/tmp;init 6` fixed my issue
+<!-- endregion troubleshooting -->
+
+### References
+[SO](https://unix.stackexchange.com/questions/131496/what-is-lightdm-and-gdm) (LightDM vs GDM)
+
+[SO](https://unix.stackexchange.com/questions/20385/windows-managers-vs-login-managers-vs-display-managers-vs-desktop-environment?rq=1) (Desktop Environment vs Display Managers vs Window Manager)
+
 ...to be continued
