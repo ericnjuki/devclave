@@ -13,7 +13,7 @@ tags: linux
 * [Desktop Environments](#desktop-environments), [DE, DM, WM?](#desktop-environments-display-mangers-window-managers)
 * [Specific things](#little-things): [disabling users list on ubuntu login screen](#disabling-user-list-at-ubuntu-login-screen), [running apps from terminal in background](#running-gedit-in-the-background-from-terminal), [make ubuntu say stuff](#make-ubuntu-say-things), [check linux distro](#check-linux-distro), [get IP and hostname](#get-ip-address-and-hostname), [open notepad++ from cli](#open-a-file-in-notepad-using-cmd), [copy files to ftp server(windows)](#copy-files-to-ftp-server-in-windows), [VSCode Code Snippets](#VSCode code snippets)
 * [Commands dump](#commands)
-* [Trouble shooting](#troubleshooting), [OpenSUSE](#opensuse), [Booting to virtual terminal](booting-to-virtual-terminal)
+* [Trouble shooting](#troubleshooting), [OpenSUSE](#opensuse), [Booting to virtual terminal](#booting-to-virtual-terminal)
 * [References](#references)
 
 <!-- region printing -->
@@ -164,6 +164,10 @@ Cinammon (linux Mint), LXDE (Lubuntu, lightweight), Xfce (Xubuntu, Manjaro, ligh
 ##### lightdm/gdm
 -LightDM is an x display manager that aims to be lightweight, fast, extensible and multi-desktop
 -gdm (the GNOME Display Manager) is a display manager (a graphical login program) for the windowing systems X11 and Wayland.It is a highly configurable reimplementation of xdm, the X Display Manager
+{% highlight bash %}
+# Can be changed by:
+sudo dpkg-reconfigure gdm # (if gdm is already installed)
+{% endhighlight %}
 
 #### Desktop Environments, Display Mangers, Window Managers?
 from [StackOverflow](https://unix.stackexchange.com/questions/20385/windows-managers-vs-login-managers-vs-display-managers-vs-desktop-environment?rq=1):
@@ -278,6 +282,35 @@ KEY:
 -each element of "body" is a line
 
 -You can also use this [snippet generator app](https://snippet-generator.app)
+
+##### line breaks in markdown
+[From here](https://gist.github.com/shaunlebron/746476e6e7a4d698b373)
+{% highlight markdown %}
+  Hello  (<-- two spaces)
+  World
+
+  Hello<br/>
+  World
+
+  Hello
+
+  World
+
+  hello\
+  world
+  # (works only if it is the last character. If it has trailing spaces(e.g. "hello\ "), backslash will be output)
+
+  Hello&nbsp;
+  World
+
+  # all output the following:
+  Hello
+  World
+
+{% endhighlight %}
+Hello
+
+World
 
 <!-- endregion little-things -->
 
