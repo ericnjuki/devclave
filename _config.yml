@@ -4,7 +4,7 @@ author: eric_njuki
 description: >- # this means to ignore newlines until "baseurl:"
   Spells and potions
 baseurl: "/devclave" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "ericnjuki.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: ericnjuki
 github_username:  ericnjuki
 
