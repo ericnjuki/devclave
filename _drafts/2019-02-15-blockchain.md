@@ -1,3 +1,20 @@
+---
+layout: post
+title: "blockchain"
+date: 2019-02-25 19:40:00 +0300
+tags: drugs
+---
+
+2019 was supposed to be _the year_. Being 21 and thus necessarily unsure of what to do with my life, I, in a rare stroke of genius, decided to embark upon the unprecedented journey of learning the most popular technology.
+I fired up my favorite browser: not-chrome, and er.. searched "Technologies to watch out for in 2019". And there it was. Among ML, AR/VR, IoT and other examples of poor naming conventions, was the odd tech out, blockchain.
+
+The first few reads about any technology are (and should be) meant to kind of buy you into the idea. The 'how this new thing is cool' or 'why this new thing over the other old thing that your boss probably wants you to learn'. So I spent the next 2 hours reading _about_ blockchain. I then spent the next 3 days after that doing the exact same thing, without ever writing a single piece of code. And I am writing this post still, without having written a single piece of code. And here's why:
+
+Blockchain is, without a doubt, the technology with the least understood-to-talked-about ratio. And while many have the basics all ironed out, the proverbial devil, it seems, has escaped the meat of so many a blockchain article with high search engine ratings that in turn perpetuate the general -ignorance- misunderstanding of this exciting subject. A misunderstanding that currently has me at its throes. All I have left now is more questions, less answers and consequently, no code.
+
+
+
+
 Satoshi Nakamoto
 
 https://www.youtube.com/watch?v=SSo_EIwHSd4:
