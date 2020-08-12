@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang=" en "><head >
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.4.0 -->
+<title>CSS Tricks: 1st Chapter | DevClave</title>
+<meta name="generator" content="Jekyll v3.7.3" />
+<meta property="og:title" content="CSS Tricks: 1st Chapter" />
+<meta name="author" content="unsuspecting_dev" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Some css tricks I’ve learned: Containing an image within a div Centering an image Div expand to floated content Target all except first child" />
+<meta property="og:description" content="Some css tricks I’ve learned: Containing an image within a div Centering an image Div expand to floated content Target all except first child" />
+<link rel="canonical" href="http://localhost:4000/2018/05/20/css-tricks-1.html" />
+<meta property="og:url" content="http://localhost:4000/2018/05/20/css-tricks-1.html" />
+<meta property="og:site_name" content="DevClave" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-05-20T17:32:13+03:00" />
+<script type="application/ld+json">
+{"description":"Some css tricks I’ve learned: Containing an image within a div Centering an image Div expand to floated content Target all except first child","author":{"@type":"Person","name":"unsuspecting_dev"},"@type":"BlogPosting","url":"http://localhost:4000/2018/05/20/css-tricks-1.html","headline":"CSS Tricks: 1st Chapter","dateModified":"2018-05-20T17:32:13+03:00","datePublished":"2018-05-20T17:32:13+03:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2018/05/20/css-tricks-1.html"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/main.css?1549745034"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="DevClave" /></head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-push-2 wrapper"><header role="banner">
+  <nav>
+    <h1><a href="/">DevClave</a></h1>
+  </nav>
+</header><main aria-label="Content">
+          <div class="article-content">
+  <article>
+    <h1>CSS Tricks: 1st Chapter</h1><span class="article-metadata">May 20, 2018</span>
+    <!-- <span class="article-metadata">by<span class="by"> unsuspecting_dev</span></span> -->
+    <h5 id="some-css-tricks-ive-learned">Some css tricks I’ve learned:</h5>
+<ul>
+  <li><a href="#containing-an-image-within-a-div">Containing an image within a div</a></li>
+  <li><a href="#centering-an-image">Centering an image</a></li>
+  <li><a href="#div-expand-to-floated-content">Div expand to floated content</a></li>
+  <li><a href="#target-all-except-first-child">Target all except first child</a></li>
+</ul>
+
+<div class="article-spacing"></div>
+
+<h3 id="containing-an-image-within-a-div">Containing an image within a div:</h3>
+
+<figure class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.div-containing-img</span> <span class="p">{</span>
+  <span class="nl">overflow</span><span class="p">:</span><span class="nb">hidden</span><span class="p">;</span> 
+<span class="p">}</span>
+<span class="nc">.div-containing-img</span><span class="o">&gt;</span><span class="nt">img</span> <span class="p">{</span>
+  <span class="c">/* set width */</span>
+  <span class="nl">width</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
+  <span class="nl">max-width</span><span class="p">:</span> <span class="m">20em</span><span class="p">;</span></code></pre></figure>
+
+<h3 id="centering-an-image">Centering an image:</h3>
+
+<figure class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.image-to-center</span> <span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="nb">block</span><span class="p">;</span>
+  <span class="nl">margin</span><span class="p">:</span> <span class="nb">auto</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<h3 id="div-expand-to-floated-content">Div expand to floated content:</h3>
+
+<figure class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.div-to-expand</span> <span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="n">inline-block</span><span class="p">;</span>
+  <span class="nl">line-height</span><span class="p">:</span> <span class="m">50px</span><span class="p">;</span> 
+  <span class="c">/* if you need to vertically align text as well,
+   you only need to set line-height */</span>
+<span class="p">}</span></code></pre></figure>
+
+<h3 id="target-all-except-first-child">Target all except first child:</h3>
+
+<figure class="highlight"><pre><code class="language-css" data-lang="css"><span class="nt">grandmother</span><span class="o">&gt;</span><span class="nt">mother</span> <span class="o">*</span><span class="nd">:not</span><span class="o">(</span><span class="nd">:first-child</span><span class="o">)</span> <span class="p">{</span>
+  
+<span class="p">}</span></code></pre></figure>
+
+<p><strong><a href="#some-css-tricks-ive-learned">⬆ back to top</a></strong></p>
+
+  </article>
+</div>
+        </main>
+
+      </div>
+    </div><footer>
+    <!--<ul><li><a href="https://github.com/devclave"><svg class="svg-icon"><use xlink:href="/assets/icons/minima-social-icons.svg#github"></use></svg> <span class="username">devclave</span></a></li><li><a href="https://www.twitter.com/devclave"><svg class="svg-icon"><use xlink:href="/assets/icons/minima-social-icons.svg#twitter"></use></svg> <span class="username">devclave</span></a></li></ul>
+-->
+    <!-- <a class="typical-link" href="/feed.xml">subscribe via RSS</a> -->
+    <svg class="svg-icon"><use xlink:href="/assets/icons/minima-social-icons.svg#twitter"></use></svg> 
+    <a class="typical-link" href="https://www.twitter.com/devclave">devclave</a>
+    <svg class="svg-icon"><use xlink:href="/assets/icons/minima-social-icons.svg#github"></use></svg>
+    <a class="typical-link" href="https://github.com/devclave">devclave</a>
+    <a class="typical-link" style="margin-left: 2em;" href="/about">about</a> 
+    <p>copyright ( ͡° ͜ʖ ͡°) 2019 devclave</p>
+</footer></div>
+</body>
+
+</html>
