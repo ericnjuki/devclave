@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "The First Tale"
+title: "First Post"
 date: 2018-03-17 05:13:00 +0300
 tags: first-post fooling-around
 ---

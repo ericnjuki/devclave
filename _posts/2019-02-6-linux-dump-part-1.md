@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "All My Linux: Part 1"
+title: "Linux Notes"
 date: 2019-02-06 18:00:00 +0300
 tags: linux
 ---

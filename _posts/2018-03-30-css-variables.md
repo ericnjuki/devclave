@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Front end Chronicles: CSS Variables"
+title: "CSS Variables"
 date: 2018-03-30 6:34:00 +0300
 tags: css
 ---
