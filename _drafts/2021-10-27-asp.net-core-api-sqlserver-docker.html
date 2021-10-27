@@ -1,0 +1,90 @@
+---
+layout: post
+title: ".NET Core + SQL Server with Docker Compose"
+date: 21-10-26 19:49:25 +0300
+tags: fooling-around
+---
+
+<h2>Background</h2>
+<p>
+  <span class="dropcaps">S</span>o I have an existing ASP.NET Core API that I need hosting for.
+  Looking to spend exactly zero dollars on hosting fees, I didn't find any friendly hosting services
+  that you could use for ASP.NET apps and SQL Server for absolutely FREE FOREVER. 
+  The closest I got was Heroku, which supports Docker. I decided to try it.
+</p>
+
+<h2>Introduction</h2>
+<p>
+  The task is to dockerize my API together with an instance of SQL Server for my database.
+  I quickly found out that it's best practice to have only one app/service/thing per container.
+  So my API and database would have to live in separate containers and somehow talk to each other.
+  Further research led me to Docker Compose which is bred for exactly this purpose.
+  So the tasks are:
+  <ul>
+    <li>Dockerize my API</li>
+    <li>Dockerize an instance of SQL Server</li>
+    <li>Connect the two using Docker Compose</li>
+  </ul>
+</p>
+
+<h2>Setup</h2>
+<p>
+  So here's my current project. It was built on ASP.NET Core 2.2
+  Database is made using Entity Framework Core 2.2 code first, targeting SQL Server.
+</p>
+<img src="" alt="">
+<p>
+  I'm running Docker on Windows and set to Linux containers.
+  The reason I took this approach is to have both the database and API in Linux containers.
+  Also, Microsoft doesn't have an official SQL Server Docker image for Windows. Yeah, I know. 
+  And since the API uses .NET Core, it's supported on all platforms, including Linux.
+  Note: You can use Docker Compose to connect a Linux and Windows container. (https://devblogs.microsoft.com/premier-developer/mixing-windows-and-linux-containers-with-docker-compose/)
+</p>
+
+<h3>Dockerizing the ASP.NET Core API</h3>
+<h4>The Dockerfile</h4>
+<p>
+  The first step to dockerizing an app is to create the Dockerfile.
+  A Dockerfile is a file named "Dockerfile" with no file extension.
+  It tells Docker how to build your Docker image.
+  It does this by specifying the base Docker image you'll need (in this case the asp.net core Docker image 
+  provided by Microsoft). It will also allow you to copy all the source files you need from the host into the container
+  to ensure the app runs the way it's supposed to. And finally it allows you to issue a command
+  to stat your application through the cli. It can do a lot of other things but basically that's it.
+  Since this is a multi-project Web API, we're going to place the Dockerfile in the root of the application,
+  where the .stn is located. This will allow us to easily navigate to each of the .csproj files in each
+  of the projects because we will need those to restore nuget packages in the container.
+</p>
+<p>
+  My Dockerfile looks like this:
+</p>
+
+{% highlight Dockerfile %}
+bla bla bla
+{% endhighlight %}
+
+<h4>Anatomy of the docker file</h4>
+<h5>Define a base image</h5>
+<code>FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build-env</code>
+<p>here we are...</p>
+
+<h5>Copy project files and restore packages</h5>
+{% highlight Dockerfile %}
+COPY . ./
+RUN dotnet restore "./wekezapp.core/wekezapp.core.csproj"
+RUN dotnet restore "./wekezapp.data/wekezapp.data.csproj"
+RUN dotnet restore "./wekezapp.business/wekezapp.business.csproj"
+{% endhighlight %}
+<p>here we are...</p>
+
+<h5>Publish the project</h5>
+<code>RUN dotnet publish -c Release -o publish</code>
+<p>here we are...</p>
+
+<h5>Build the runtime image</h5>
+{% highlight Dockerfile %}
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2.3
+WORKDIR /app/wekezapp.core
+COPY --from=build-env /app/wekezapp.core/publish .
+{% endhighlight %}
+<p>here we are...</p>
