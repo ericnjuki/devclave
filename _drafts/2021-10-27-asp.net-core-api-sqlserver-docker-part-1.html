@@ -5,6 +5,7 @@ date: 21-10-26 19:49:25 +0300
 tags: fooling-around
 ---
 
+<h3>Part 1: Dockerizing the .NET Core API</h3>
 <h2>Background</h2>
 <p>
   <span class="dropcaps">S</span>o I have an existing ASP.NET Core API that I need hosting for.
@@ -41,7 +42,6 @@ tags: fooling-around
   Note: You can use Docker Compose to connect a Linux and Windows container. (https://devblogs.microsoft.com/premier-developer/mixing-windows-and-linux-containers-with-docker-compose/)
 </p>
 
-<h3>Dockerizing the ASP.NET Core API</h3>
 <h4>The Dockerfile</h4>
 <p>
   The first step to dockerizing an app is to create the Dockerfile.
@@ -64,27 +64,123 @@ bla bla bla
 {% endhighlight %}
 
 <h4>Anatomy of the docker file</h4>
-<h5>Define a base image</h5>
-<code>FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build-env</code>
-<p>here we are...</p>
 
-<h5>Copy project files and restore packages</h5>
+<ol>
+  <li>
+    <h5>Define a base image</h5>
+{% highlight Dockerfile %}
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build-env
+{% endhighlight %}
+    <p>here we are...</p>
+  </li>
+  <li>
+    <h5>Copy project files and restore packages</h5>
 {% highlight Dockerfile %}
 COPY . ./
 RUN dotnet restore "./wekezapp.core/wekezapp.core.csproj"
 RUN dotnet restore "./wekezapp.data/wekezapp.data.csproj"
 RUN dotnet restore "./wekezapp.business/wekezapp.business.csproj"
 {% endhighlight %}
-<p>here we are...</p>
-
-<h5>Publish the project</h5>
-<code>RUN dotnet publish -c Release -o publish</code>
-<p>here we are...</p>
-
-<h5>Build the runtime image</h5>
+    <p>here we are...</p>
+  </li>
+  <li>
+    <h5>Publish the project</h5>
+{% highlight Dockerfile %}
+RUN dotnet publish -c Release -o publish
+{% endhighlight %}
+    <p>here we are...</p>
+  </li>
+  <li>
+    <h5>Build the runtime image</h5>
 {% highlight Dockerfile %}
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2.3
 WORKDIR /app/wekezapp.core
 COPY --from=build-env /app/wekezapp.core/publish .
 {% endhighlight %}
-<p>here we are...</p>
+    <p>here we are...</p>
+  </li>
+  <li>
+    <h5>Start the application</h5>
+{% highlight Dockerfile %}
+ENTRYPOINT ["dotnet", "wekezapp.core.dll"]
+{% endhighlight %}
+  </li>
+</ol>
+
+And that's it! The full Dockerfile looks like this:
+
+{% highlight Dockerfile %}
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build-env
+WORKDIR /app
+
+# Copy everything and restore nuget packages
+COPY . ./
+RUN dotnet restore "./wekezapp.core/wekezapp.core.csproj"
+RUN dotnet restore "./wekezapp.data/wekezapp.data.csproj"
+RUN dotnet restore "./wekezapp.business/wekezapp.business.csproj"
+
+# Copy publish the project
+RUN dotnet publish -c Release -o publish
+
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2.3
+WORKDIR /app/wekezapp.core
+COPY --from=build-env /app/wekezapp.core/publish .
+ENTRYPOINT ["dotnet", "wekezapp.core.dll"]
+{% endhighlight %}
+
+<h4>Build the Docker image and create the container</h4>
+<p>
+  A docker image is like a blueprint that's used to create the actual container.
+  You create one using the docker build command.
+</p>
+
+{% highlight bash %}
+docker build -t wekezapp-image -f Dockerfile .
+{% endhighlight %}
+
+<p>
+  Here's the docker build command at work.
+  We can see it restoring nuget packages for our projects in the image.
+  From here we simply run the image to create the container:
+</p>
+
+{% highlight bash %}
+docker run -it --rm -p 5000:80 --name wekezapp-container wekezapp-image
+{% endhighlight %}
+
+<ul>
+  <li>
+    -it flag tells docker to take you straight into the container.
+    So the command line you are on will now be directly connected to the container's shell,
+    in this case /bin/bash since it's a Linux container.
+  </li>
+  <li>
+    --rm means to delete the container once the command finishes executing. 
+    This isn't bad, as docker containers are generally wanted to be stateless
+  </li>
+  <li>
+    -p 5000:80 tells it to map port 5000 on our local machine to port 80 on the container
+  </li>
+  <li>
+    specify the name of the container and finally..
+  </li>
+  <li>
+    the image used to create the container.
+  </li>
+</ul>
+
+<p>
+  Running this command results in Now listening on: http://[::]:80
+  We can access our app by going to localhost:5000.
+  And I can now try to access and API endpoint like localhost:5000/api/users
+  which is supposed to return a list of users from the db and I get:
+  An error occurred using the connection to database 'Wekezapp' on server '.'.
+  Great! My app works. This error makes sense because the API is the <i>only</i> thing in the container.
+  It's trying to access tje db on the local machine and of course, there is none.
+  So in the next part, I will try to containerize my db.
+</p>
+
+
+<h5>General Notes</h5>
+- RUN is used to run shell commands in the container

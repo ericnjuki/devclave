@@ -219,6 +219,7 @@ article h3 {
   font-size: 1.2em;
   font-weight: 600;
   margin-top: 2em;
+  color: #b70a0a;
 }
 article h4 {
   font-size: 1.1em;
@@ -226,8 +227,9 @@ article h4 {
   margin-top: 2em;
 }
 article h5 {
-    font-weight: 600;
-    margin-top: 1em;
+  font-size: 1em;
+  font-weight: 600;
+  margin-top: 1em;
 }
 article h6 {
   font-size: 0.8em;
