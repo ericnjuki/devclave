@@ -241,11 +241,11 @@ article ul, article ol {
 article ol {
     list-style-type: decimal;
 }
-article img {
+article img, article video {
   width: 100%;
   margin: 0.8em 0;
 }
-  .dropcaps {
+.dropcaps {
   font-weight: 800;
   font-size: 3em;
   float: left;
@@ -255,4 +255,9 @@ article img {
 }
 .article-spacing {
   margin-bottom: 3em;
+}
+
+/* nested article indentation */
+ul ul, ul ol, ol ol, ol ul {
+  padding-left: 1em;
 }

@@ -1,44 +1,44 @@
 ---
 layout: post
-title: ".NET Core + SQL Server with Docker Compose"
-date: 21-10-26 19:49:25 +0300
+title: "Containerizing a SQL Server instance on Docker"
+date: 21-10-27 19:49:25 +0300
 tags: fooling-around
 ---
 
-<h3>Part 1: Dockerizing the .NET Core API</h3>
+<h3>Part 2: Dockerizing an instance of SQL Server</h3>
 <h2>Background</h2>
 <p>
-  <span class="dropcaps">S</span>o I have an existing ASP.NET Core API that I need hosting for.
-  Looking to spend exactly zero dollars on hosting fees, I didn't find any friendly hosting services
-  that you could use for ASP.NET apps and SQL Server for absolutely FREE FOREVER. 
-  The closest I got was Heroku, which supports Docker. I decided to try it.
+  <span class="dropcaps">S</span>o I have an existing ASP.NET Core API that I want to host on Heroku.
+  Since Heroku doesn't natively support .NET apps, we have to put all services of our app
+  in Docker containers which are supported.
 </p>
 
 <h2>Introduction</h2>
 <p>
   The task is to dockerize my API together with an instance of SQL Server for my database.
-  I quickly found out that it's best practice to have only one app/service/thing per container.
-  So my API and database would have to live in separate containers and somehow talk to each other.
-  Further research led me to Docker Compose which is bred for exactly this purpose.
+  Since it's best practice to have only one app/service/thing per container,
+  the API and database will have to live in separate containers and somehow talk to each other.
+  We will achieve this using Docker Compose which is used to connect multiple containers.
   So the tasks are:
   <ul>
-    <li>Dockerize my API</li>
+    <li>Dockerize the API</li>
     <li>Dockerize an instance of SQL Server</li>
     <li>Connect the two using Docker Compose</li>
   </ul>
 </p>
 
+<h3>Part 1: Dockerizing the .NET Core API</h3>
 <h2>Setup</h2>
 <p>
-  So here's my current project. It was built on ASP.NET Core 2.2
-  Database is made using Entity Framework Core 2.2 code first, targeting SQL Server.
+  So here's my current project. It was built on ASP.NET Core 2.2.
 </p>
 <img src="" alt="">
 <p>
   I'm running Docker on Windows and set to Linux containers.
-  The reason I took this approach is to have both the database and API in Linux containers.
-  Also, Microsoft doesn't have an official SQL Server Docker image for Windows. Yeah, I know. 
-  And since the API uses .NET Core, it's supported on all platforms, including Linux.
+  This means that all the apps I containerize in my Docker environment will be running on Linux.
+  And this is purely out of preference.
+  This isn't a problem for my .NET Core API because .NET Core is supported on Linux.
+  <br>
   Note: You can use Docker Compose to connect a Linux and Windows container. (https://devblogs.microsoft.com/premier-developer/mixing-windows-and-linux-containers-with-docker-compose/)
 </p>
 

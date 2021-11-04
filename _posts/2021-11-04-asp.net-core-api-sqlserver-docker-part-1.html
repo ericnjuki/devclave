@@ -1,0 +1,265 @@
+---
+layout: post
+title: "Dockerizing ASP.NET Core Web API"
+date: 21-11-04 15:00:00 +0300
+tags: asp.net docker
+---
+
+<h2>Contents</h2>
+<ul>
+  <li><a href="#background">Background</a></li>
+  <li><a href="#introduction">Introduction</a></li>
+  <li>
+    <a href="#setup">Setup</a>
+    <ul>
+      <li><a href="#the-dockerfile">Creating a Dockerfile</a></li>
+    </ul>
+  </li>
+  <li><a href="#building-image">Building the Docker image</a></li>
+  <li><a href="#creating-container">Creating the container</a></li>
+</ul>
+
+<h2 id="background">Background</h2>
+<p>
+  <span class="dropcaps">S</span>o I have an existing ASP.NET Core API that I want to host on Heroku.
+  Since Heroku doesn't natively support .NET apps, we have to put all services of our app
+  in Docker containers which are supported.
+</p>
+
+<h2 id="introduction">Introduction</h2>
+<p>
+  The task is to dockerize my API together with an instance of SQL Server for my database.
+  Since it's best practice to have only one app/service/thing per container,
+  the API and database will have to live in separate containers and somehow talk to each other.
+  <br>
+  We will achieve this using Docker Compose which is used to connect multiple containers.
+  So the tasks are:
+  <ol>
+    <li>Dockerize the .NET Core API</li>
+    <li>Dockerize an instance of SQL Server</li>
+    <li>Connect the two using Docker Compose</li>
+  </ol>
+</p>
+<br>
+<p>
+  This post will cover the first task:
+</p>
+
+<h3>Part 1: Dockerizing the .NET Core API</h3>
+<h2 id="setup">Setup</h2>
+<p>
+  So here's my current project. It was built on ASP.NET Core 2.2.
+</p>
+<img style="width: 50%;" src="{{site.baseurl}}/assets/images/20211004_1_wekezapp_stn.png" alt="">
+<p>
+  This is a typical ASP.NET API that contains three projects.
+  <br>
+  <br>
+  <code>wekezapp.core</code> is the startup project and is the main project.
+  It houses my controllers and exposes my API endpoints.
+  <br>
+  <br>
+  <code>wekezapp.business</code> is my services layer.
+  It contains all the business and data processing logic.
+  <br>
+  <br>
+  <code>wekezapp.data</code> is my data layer.
+  It contains my context class and models. Its sole task is to perform data access to the db.
+</p>
+<br>
+<p>
+  I'm running Docker on Windows and set to Linux containers.
+  This means that all the apps I containerize in my Docker environment will be running on Linux.
+  <br>
+  And this is purely out of preference.
+  This isn't a problem for my .NET Core API because .NET Core is supported on Linux.
+  <br>
+  Note: You can use Docker Compose to connect a Linux and Windows container. (https://devblogs.microsoft.com/premier-developer/mixing-windows-and-linux-containers-with-docker-compose/)
+</p>
+
+<h4 id="the-dockerfile">The Dockerfile</h4>
+<p>
+  The first step to dockerizing an app is to create the Dockerfile.
+  <br>
+  A Dockerfile is a file named <code>Dockerfile</code> with no file extension.
+  <br><br>
+  <em>What's the purpose of a Dockerfile?</em>
+  <ul>
+    <li>It lets you specify the base Docker image you'll need to containerize your application</li>
+    <li>It lets you copy all the source files you need from the host into the container</li>
+    <li>And finally it allows you to issue a command in the container's shell to stat your application</li>
+  </ul>
+  It can do a lot of other things but basically that's it.
+  We're going to place the Dockerfile in the root of the application.
+</p>
+
+<h4>Anatomy of the docker file</h4>
+
+<ol>
+  <li>
+    <h5>Define a base image</h5>
+{% highlight Dockerfile %}
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build-env
+{% endhighlight %}
+    <p>
+      The base image is a Docker image that we will base our container on.
+      This is an official SDK image by Microsoft that contains dev tools for .NET Core 2.2.
+      It will allow us to build our application <em>inside</em> the container.
+      <br>
+      Note that we are providing an alias for the image using the <code>AS</code> command,
+      <br> so now <code>build-env</code> will refer to this image.
+    </p>
+  </li>
+  <li>
+    <h5>Copy project files and restore packages</h5>
+{% highlight Dockerfile %}
+COPY . ./
+RUN dotnet restore "./wekezapp.core/wekezapp.core.csproj"
+RUN dotnet restore "./wekezapp.data/wekezapp.data.csproj"
+RUN dotnet restore "./wekezapp.business/wekezapp.business.csproj"
+{% endhighlight %}
+    <p>
+      This tells Docker to copy all the project files into the container,
+      and the <code>RUN</code> command allows us to run commands in the container shell,
+      such as <code>dotnet</code>, which we will use to build our API.
+      <br>
+      We then restore all required NuGet packages.
+    </p>
+  </li>
+  <li>
+    <h5>Publish the project</h5>
+{% highlight Dockerfile %}
+RUN dotnet publish -c Release -o publish
+{% endhighlight %}
+    <p>
+      After restoring NuGet packages, we can go ahead and publish our project.
+      This will build and publish our API in the output folder <code>publish</code>.
+    </p>
+  </li>
+  <li>
+    <h5>Build the runtime image</h5>
+{% highlight Dockerfile %}
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2.3
+WORKDIR /app/wekezapp.core
+COPY --from=build-env /app/wekezapp.core/publish .
+{% endhighlight %}
+    <p>
+      Here, we're changing the base image to another official image by Microsoft,
+      the ASP.NET Core 2.2.3 runtime image.
+      This will provide a runtime envirionment for our API to run in. 
+      So we copy all the files from the previous image into the new runtime image.
+    </p>
+  </li>
+  <li>
+    <h5>Start the application</h5>
+{% highlight Dockerfile %}
+ENTRYPOINT ["dotnet", "wekezapp.core.dll"]
+{% endhighlight %}
+    <p>
+      This basically tells Docker how to start out application, 
+      by running <code>dotnet wekezapp.core.dll</code> in the container.
+    </p>
+  </li>
+</ol>
+<br>
+<p>
+  And that's it! The full Dockerfile looks like this:
+</p>
+
+{% highlight Dockerfile %}
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build-env
+WORKDIR /app
+
+# Copy everything and restore nuget packages
+COPY . ./
+RUN dotnet restore "./wekezapp.core/wekezapp.core.csproj"
+RUN dotnet restore "./wekezapp.data/wekezapp.data.csproj"
+RUN dotnet restore "./wekezapp.business/wekezapp.business.csproj"
+
+# Copy publish the project
+RUN dotnet publish -c Release -o publish
+
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2.3
+WORKDIR /app/wekezapp.core
+COPY --from=build-env /app/wekezapp.core/publish .
+ENTRYPOINT ["dotnet", "wekezapp.core.dll"]
+{% endhighlight %}
+
+<h4 id="building-image">Build the Docker image</h4>
+<p>
+  The next step is creating a Docker image.
+  <br>
+  A docker image is like a blueprint that's used to create the actual container.
+  You create one using the <code>docker build</code> command.
+</p>
+
+{% highlight bash %}
+docker build -t wekezapp-image -f Dockerfile .
+{% endhighlight %}
+
+<p>
+  When we run that, this is what we get:
+</p>
+<video controls poster="{{site.baseurl}}/assets/images/20211004_2_docker_build_thumb.png">
+  <source src="{{site.baseurl}}/assets/videos/20211004_1_docker_build_output.mp4" type="video/mp4" />
+  <source src="{{site.baseurl}}/assets/videos/20211004_1_docker_build_output.webm" type="video/webm" />
+</video>
+<p>
+  We can see it restoring nuget packages for our projects in the image.
+  <br>
+  Next, we use our newly-created image to create the container:
+</p>
+
+<h4 id="creating-container">Creating the Docker container</h4>
+{% highlight bash %}
+docker run -it --rm -p 5000:80 --name wekezapp-container wekezapp-image
+{% endhighlight %}
+
+<ul>
+  <li>
+    -it flag tells docker to take you straight into the container.
+    So the command line you are on will now be directly connected to the container's shell,
+    in this case /bin/bash since it's a Linux container.
+  </li>
+  <li>
+    --rm means to delete the container once the command finishes executing. 
+    This isn't bad, as docker containers are generally wanted to be stateless
+  </li>
+  <li>
+    -p 5000:80 tells it to map port 5000 on our local machine to port 80 on the container
+  </li>
+  <li>
+    <code>wekezapp-container</code> is what we want to name the container and finally..
+  </li>
+  <li>
+    <code>wekezapp-image</code> is the image we want to use to create the container.
+  </li>
+</ul>
+<br>
+<p>
+  Running this command results in 
+{% highlight bash %}
+Now listening on: http://[::]:80
+{% endhighlight %}
+  We can then access our app by going to <code>localhost:5000</code>. 
+  5000 is the local port we mapped to port 80 in the container in our <code>docker build</code> command.
+  <br><br>
+  And I can now try to access an API endpoint like <code>localhost:5000/api/users</code>
+  which is supposed to return a list of users from the db and I get:
+{% highlight bash %}
+An error occurred using the connection to database 'Wekezapp' on server '.'.
+{% endhighlight %}
+  Great! My app works.
+  <br>
+  This error makes sense because the API is the <em>only</em> thing in the container.
+  It's trying to access the db on the local machine and of course, there is none.
+  <br>
+  So in the next part, I will containerize my db.
+</p>
+
+<h4>References</h4>
+<ul>
+  <li><a href="https://docs.docker.com/samples/dotnetcore/">Docker official docs for ASP.NET Core</a></li>
+  <li><a href="https://blog.sixeyed.com/understanding-microsofts-docker-images-for-net-apps/">Understanding Microsoft's Docker Images for .NET Apps</a></li>
+</ul>
