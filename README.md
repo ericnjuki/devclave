@@ -1,4 +1,4 @@
 # DevClave
-A cobweb-ridden cave where my blog posts reside. Happy browsing!
+A place where I write my dev musings. Happy browsing!
 
-[Link to blog](https://ericnjuki.github.io/devclave)
+[Link to blog](https://ericnjuki.com/devclave)
