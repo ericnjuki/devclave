@@ -4,7 +4,7 @@ author: eric_njuki
 description: >- # this means to ignore newlines until "baseurl:"
   Eric Njuki dev Blog
 baseurl: "/devclave" # the subpath of your site, e.g. /blog
-url: "ericnjuki.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://ericnjuki.com" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: ericnjuki
 github_username:  ericnjuki
 
