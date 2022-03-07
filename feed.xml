@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.4">Jekyll</generator><link href="https://ericnjuki.com/devclave/feed.xml" rel="self" type="application/atom+xml" /><link href="https://ericnjuki.com/devclave/" rel="alternate" type="text/html" /><updated>2022-03-07T16:33:30+03:00</updated><id>https://ericnjuki.com/devclave/feed.xml</id><title type="html">devclave</title><subtitle>Eric Njuki dev Blog</subtitle><author><name>eric_njuki</name></author><entry><title type="html">Dockerizing ASP.NET Core Web API</title><link href="https://ericnjuki.com/devclave/2021/11/04/asp.net-core-api-sqlserver-docker-part-1.html" rel="alternate" type="text/html" title="Dockerizing ASP.NET Core Web API" /><published>2021-11-04T15:00:00+03:00</published><updated>2021-11-04T15:00:00+03:00</updated><id>https://ericnjuki.com/devclave/2021/11/04/asp.net-core-api-sqlserver-docker-part-1</id><content type="html" xml:base="https://ericnjuki.com/devclave/2021/11/04/asp.net-core-api-sqlserver-docker-part-1.html">&lt;h2&gt;Contents&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.4">Jekyll</generator><link href="https://ericnjuki.com/devclave/feed.xml" rel="self" type="application/atom+xml" /><link href="https://ericnjuki.com/devclave/" rel="alternate" type="text/html" /><updated>2022-03-07T16:44:10+03:00</updated><id>https://ericnjuki.com/devclave/feed.xml</id><title type="html">devclave</title><subtitle>Eric Njuki dev Blog</subtitle><author><name>eric_njuki</name></author><entry><title type="html">Dockerizing ASP.NET Core Web API</title><link href="https://ericnjuki.com/devclave/2021/11/04/asp.net-core-api-sqlserver-docker-part-1.html" rel="alternate" type="text/html" title="Dockerizing ASP.NET Core Web API" /><published>2021-11-04T15:00:00+03:00</published><updated>2021-11-04T15:00:00+03:00</updated><id>https://ericnjuki.com/devclave/2021/11/04/asp.net-core-api-sqlserver-docker-part-1</id><content type="html" xml:base="https://ericnjuki.com/devclave/2021/11/04/asp.net-core-api-sqlserver-docker-part-1.html">&lt;h2&gt;Contents&lt;/h2&gt;
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#background&quot;&gt;Background&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;#introduction&quot;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
@@ -43,7 +43,7 @@
 &lt;p&gt;
   So here's my current project. It was built on ASP.NET Core 2.2.
 &lt;/p&gt;
-&lt;img style=&quot;width: 50%;&quot; src=&quot;/devclave/assets/images/20211004_1_wekezapp_stn.png&quot; alt=&quot;&quot;&gt;
+&lt;img style=&quot;width: 50%;&quot; src=&quot;/devclave//assets/images/20211004_1_wekezapp_stn.png&quot; alt=&quot;&quot;&gt;
 &lt;p&gt;
   This is a typical ASP.NET API that contains three projects.
   &lt;br&gt;
@@ -180,9 +180,9 @@
 &lt;p&gt;
   When we run that, this is what we get:
 &lt;/p&gt;
-&lt;video controls poster=&quot;/devclave/assets/images/20211004_2_docker_build_thumb.png&quot;&gt;
-  &lt;source src=&quot;/devclave/assets/videos/20211004_1_docker_build_output.mp4&quot; type=&quot;video/mp4&quot; /&gt;
-  &lt;source src=&quot;/devclave/assets/videos/20211004_1_docker_build_output.webm&quot; type=&quot;video/webm&quot; /&gt;
+&lt;video controls poster=&quot;/devclave//assets/images/20211004_2_docker_build_thumb.png&quot;&gt;
+  &lt;source src=&quot;/devclave//assets/videos/20211004_1_docker_build_output.mp4&quot; type=&quot;video/mp4&quot; /&gt;
+  &lt;source src=&quot;/devclave//assets/videos/20211004_1_docker_build_output.webm&quot; type=&quot;video/webm&quot; /&gt;
 &lt;/video&gt;
 &lt;p&gt;
   We can see it restoring nuget packages for our projects in the image.
@@ -971,7 +971,7 @@ A simple &lt;code class=&quot;highlighter-rouge&quot;&gt;sudo rm -rf /var/tmp;in
 
 secondName=Dandelion    &amp;amp;firstName=HERMES&amp;amp;phoneNumber=0722222222&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
   (note the four spaces after the word Dandelion)
-&lt;img src=&quot;/devclave/assets/images/20181021_1_aspcore_model_binding_postman_screenshot_1.png&quot; alt=&quot;postman request&quot;&gt;
+&lt;img src=&quot;/devclave//assets/images/20181021_1_aspcore_model_binding_postman_screenshot_1.png&quot; alt=&quot;postman request&quot;&gt;
 &lt;/p&gt;    
 
 &lt;br&gt;
@@ -1287,7 +1287,7 @@ secondName=Dandelion    &amp;amp;firstName=HERMES&amp;amp;phoneNumber=0722222222
   &lt;br&gt;
   See here, the framework graciously takes care of that for us, no problem.
   &lt;br&gt;
-  &lt;img src=&quot;/devclave/assets/images/20181021_1_aspcore_model_binding_bound_object_1.png&quot; alt=&quot;framework binds the unbound&quot;&gt;
+  &lt;img src=&quot;/devclave//assets/images/20181021_1_aspcore_model_binding_bound_object_1.png&quot; alt=&quot;framework binds the unbound&quot;&gt;
   &lt;br&gt;
   Yup, if you don't commit to binding a model, the framework will do it for you, unless:
   &lt;ul&gt;
