@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang=" en "><head >
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>Dockerizing ASP.NET Core Web API | devclave</title>
+<meta name="generator" content="Jekyll v3.7.4" />
+<meta property="og:title" content="Dockerizing ASP.NET Core Web API" />
+<meta name="author" content="eric_njuki" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Contents Background Introduction Setup Creating a Dockerfile Building the Docker image Creating the container" />
+<meta property="og:description" content="Contents Background Introduction Setup Creating a Dockerfile Building the Docker image Creating the container" />
+<link rel="canonical" href="ericnjuki.github.io/devclave/2021/11/04/asp.net-core-api-sqlserver-docker-part-1.html" />
+<meta property="og:url" content="ericnjuki.github.io/devclave/2021/11/04/asp.net-core-api-sqlserver-docker-part-1.html" />
+<meta property="og:site_name" content="devclave" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-11-04T15:00:00+03:00" />
+<script type="application/ld+json">
+{"datePublished":"2021-11-04T15:00:00+03:00","@type":"BlogPosting","dateModified":"2021-11-04T15:00:00+03:00","mainEntityOfPage":{"@type":"WebPage","@id":"ericnjuki.github.io/devclave/2021/11/04/asp.net-core-api-sqlserver-docker-part-1.html"},"url":"ericnjuki.github.io/devclave/2021/11/04/asp.net-core-api-sqlserver-docker-part-1.html","author":{"@type":"Person","name":"eric_njuki"},"description":"Contents Background Introduction Setup Creating a Dockerfile Building the Docker image Creating the container","headline":"Dockerizing ASP.NET Core Web API","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/devclave/assets/css/main.css?1646656904"><link type="application/atom+xml" rel="alternate" href="ericnjuki.github.io/devclave/feed.xml" title="devclave" /></head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-push-2 wrapper"><header role="banner">
+  <nav>
+    <h1><a href="/devclave/">devclave</a></h1>
+  </nav>
+</header><main aria-label="Content">
+          <div class="article-content">
+  <article>
+    <h1>Dockerizing ASP.NET Core Web API</h1><span class="article-metadata">Nov 4, 2021</span>
+    <!-- <span class="article-metadata">by<span class="by"> eric_njuki</span></span> -->
+    <h2>Contents</h2>
+<ul>
+  <li><a href="#background">Background</a></li>
+  <li><a href="#introduction">Introduction</a></li>
+  <li>
+    <a href="#setup">Setup</a>
+    <ul>
+      <li><a href="#the-dockerfile">Creating a Dockerfile</a></li>
+    </ul>
+  </li>
+  <li><a href="#building-image">Building the Docker image</a></li>
+  <li><a href="#creating-container">Creating the container</a></li>
+</ul>
+
+<h2 id="background">Background</h2>
+<p>
+  <span class="dropcaps">S</span>o I have an existing ASP.NET Core API that I want to host on Heroku.
+  Since Heroku doesn't natively support .NET apps, we have to put all services of our app
+  in Docker containers which are supported.
+</p>
+
+<h2 id="introduction">Introduction</h2>
+<p>
+  The task is to dockerize my API together with an instance of SQL Server for my database.
+  Since it's best practice to have only one app/service/thing per container,
+  the API and database will have to live in separate containers and somehow talk to each other.
+  <br>
+  We will achieve this using Docker Compose which is used to connect multiple containers.
+  So the tasks are:
+  <ol>
+    <li>Dockerize the .NET Core API</li>
+    <li>Dockerize an instance of SQL Server</li>
+    <li>Connect the two using Docker Compose</li>
+  </ol>
+</p>
+<br>
+<p>
+  This post will cover the first task:
+</p>
+
+<h3>Part 1: Dockerizing the .NET Core API</h3>
+<h2 id="setup">Setup</h2>
+<p>
+  So here's my current project. It was built on ASP.NET Core 2.2.
+</p>
+<img style="width: 50%;" src="/devclave/assets/images/20211004_1_wekezapp_stn.png" alt="">
+<p>
+  This is a typical ASP.NET API that contains three projects.
+  <br>
+  <br>
+  <code>wekezapp.core</code> is the startup project and is the main project.
+  It houses my controllers and exposes my API endpoints.
+  <br>
+  <br>
+  <code>wekezapp.business</code> is my services layer.
+  It contains all the business and data processing logic.
+  <br>
+  <br>
+  <code>wekezapp.data</code> is my data layer.
+  It contains my context class and models. Its sole task is to perform data access to the db.
+</p>
+<br>
+<p>
+  I'm running Docker on Windows and set to Linux containers.
+  This means that all the apps I containerize in my Docker environment will be running on Linux.
+  <br>
+  And this is purely out of preference.
+  This isn't a problem for my .NET Core API because .NET Core is supported on Linux.
+  <br>
+  Note: You can use Docker Compose to connect a Linux and Windows container. (https://devblogs.microsoft.com/premier-developer/mixing-windows-and-linux-containers-with-docker-compose/)
+</p>
+
+<h4 id="the-dockerfile">The Dockerfile</h4>
+<p>
+  The first step to dockerizing an app is to create the Dockerfile.
+  <br>
+  A Dockerfile is a file named <code>Dockerfile</code> with no file extension.
+  <br><br>
+  <em>What's the purpose of a Dockerfile?</em>
+  <ul>
+    <li>It lets you specify the base Docker image you'll need to containerize your application</li>
+    <li>It lets you copy all the source files you need from the host into the container</li>
+    <li>And finally it allows you to issue a command in the container's shell to stat your application</li>
+  </ul>
+  It can do a lot of other things but basically that's it.
+  We're going to place the Dockerfile in the root of the application.
+</p>
+
+<h4>Anatomy of the docker file</h4>
+
+<ol>
+  <li>
+    <h5>Define a base image</h5>
+<figure class="highlight"><pre><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> mcr.microsoft.com/dotnet/core/sdk:2.2 AS build-env</span></code></pre></figure>
+    <p>
+      The base image is a Docker image that we will base our container on.
+      This is an official SDK image by Microsoft that contains dev tools for .NET Core 2.2.
+      It will allow us to build our application <em>inside</em> the container.
+      <br>
+      Note that we are providing an alias for the image using the <code>AS</code> command,
+      <br> so now <code>build-env</code> will refer to this image.
+    </p>
+  </li>
+  <li>
+    <h5>Copy project files and restore packages</h5>
+<figure class="highlight"><pre><code class="language-dockerfile" data-lang="dockerfile"><span class="k">COPY</span><span class="s"> . ./</span>
+<span class="k">RUN </span>dotnet restore <span class="s2">"./wekezapp.core/wekezapp.core.csproj"</span>
+<span class="k">RUN </span>dotnet restore <span class="s2">"./wekezapp.data/wekezapp.data.csproj"</span>
+<span class="k">RUN </span>dotnet restore <span class="s2">"./wekezapp.business/wekezapp.business.csproj"</span></code></pre></figure>
+    <p>
+      This tells Docker to copy all the project files into the container,
+      and the <code>RUN</code> command allows us to run commands in the container shell,
+      such as <code>dotnet</code>, which we will use to build our API.
+      <br>
+      We then restore all required NuGet packages.
+    </p>
+  </li>
+  <li>
+    <h5>Publish the project</h5>
+<figure class="highlight"><pre><code class="language-dockerfile" data-lang="dockerfile"><span class="k">RUN </span>dotnet publish <span class="nt">-c</span> Release <span class="nt">-o</span> publish</code></pre></figure>
+    <p>
+      After restoring NuGet packages, we can go ahead and publish our project.
+      This will build and publish our API in the output folder <code>publish</code>.
+    </p>
+  </li>
+  <li>
+    <h5>Build the runtime image</h5>
+<figure class="highlight"><pre><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> mcr.microsoft.com/dotnet/core/aspnet:2.2.3</span>
+<span class="k">WORKDIR</span><span class="s"> /app/wekezapp.core</span>
+<span class="k">COPY</span><span class="s"> --from=build-env /app/wekezapp.core/publish .</span></code></pre></figure>
+    <p>
+      Here, we're changing the base image to another official image by Microsoft,
+      the ASP.NET Core 2.2.3 runtime image.
+      This will provide a runtime envirionment for our API to run in. 
+      So we copy all the files from the previous image into the new runtime image.
+    </p>
+  </li>
+  <li>
+    <h5>Start the application</h5>
+<figure class="highlight"><pre><code class="language-dockerfile" data-lang="dockerfile"><span class="k">ENTRYPOINT</span><span class="s"> ["dotnet", "wekezapp.core.dll"]</span></code></pre></figure>
+    <p>
+      This basically tells Docker how to start out application, 
+      by running <code>dotnet wekezapp.core.dll</code> in the container.
+    </p>
+  </li>
+</ol>
+<br>
+<p>
+  And that's it! The full Dockerfile looks like this:
+</p>
+
+<figure class="highlight"><pre><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> mcr.microsoft.com/dotnet/core/sdk:2.2 AS build-env</span>
+<span class="k">WORKDIR</span><span class="s"> /app</span>
+
+<span class="c"># Copy everything and restore nuget packages</span>
+<span class="k">COPY</span><span class="s"> . ./</span>
+<span class="k">RUN </span>dotnet restore <span class="s2">"./wekezapp.core/wekezapp.core.csproj"</span>
+<span class="k">RUN </span>dotnet restore <span class="s2">"./wekezapp.data/wekezapp.data.csproj"</span>
+<span class="k">RUN </span>dotnet restore <span class="s2">"./wekezapp.business/wekezapp.business.csproj"</span>
+
+<span class="c"># Copy publish the project</span>
+<span class="k">RUN </span>dotnet publish <span class="nt">-c</span> Release <span class="nt">-o</span> publish
+
+<span class="c"># Build runtime image</span>
+<span class="k">FROM</span><span class="s"> mcr.microsoft.com/dotnet/core/aspnet:2.2.3</span>
+<span class="k">WORKDIR</span><span class="s"> /app/wekezapp.core</span>
+<span class="k">COPY</span><span class="s"> --from=build-env /app/wekezapp.core/publish .</span>
+<span class="k">ENTRYPOINT</span><span class="s"> ["dotnet", "wekezapp.core.dll"]</span></code></pre></figure>
+
+<h4 id="building-image">Build the Docker image</h4>
+<p>
+  The next step is creating a Docker image.
+  <br>
+  A docker image is like a blueprint that's used to create the actual container.
+  You create one using the <code>docker build</code> command.
+</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker build <span class="nt">-t</span> wekezapp-image <span class="nt">-f</span> Dockerfile .</code></pre></figure>
+
+<p>
+  When we run that, this is what we get:
+</p>
+<video controls poster="/devclave/assets/images/20211004_2_docker_build_thumb.png">
+  <source src="/devclave/assets/videos/20211004_1_docker_build_output.mp4" type="video/mp4" />
+  <source src="/devclave/assets/videos/20211004_1_docker_build_output.webm" type="video/webm" />
+</video>
+<p>
+  We can see it restoring nuget packages for our projects in the image.
+  <br>
+  Next, we use our newly-created image to create the container:
+</p>
+
+<h4 id="creating-container">Creating the Docker container</h4>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="nt">-p</span> 5000:80 <span class="nt">--name</span> wekezapp-container wekezapp-image</code></pre></figure>
+
+<ul>
+  <li>
+    -it flag tells docker to take you straight into the container.
+    So the command line you are on will now be directly connected to the container's shell,
+    in this case /bin/bash since it's a Linux container.
+  </li>
+  <li>
+    --rm means to delete the container once the command finishes executing. 
+    This isn't bad, as docker containers are generally wanted to be stateless
+  </li>
+  <li>
+    -p 5000:80 tells it to map port 5000 on our local machine to port 80 on the container
+  </li>
+  <li>
+    <code>wekezapp-container</code> is what we want to name the container and finally..
+  </li>
+  <li>
+    <code>wekezapp-image</code> is the image we want to use to create the container.
+  </li>
+</ul>
+<br>
+<p>
+  Running this command results in 
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Now listening on: http://[::]:80</code></pre></figure>
+  We can then access our app by going to <code>localhost:5000</code>. 
+  5000 is the local port we mapped to port 80 in the container in our <code>docker build</code> command.
+  <br><br>
+  And I can now try to access an API endpoint like <code>localhost:5000/api/users</code>
+  which is supposed to return a list of users from the db and I get:
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">An error occurred using the connection to database <span class="s1">'Wekezapp'</span> on server <span class="s1">'.'</span>.</code></pre></figure>
+  Great! My app works.
+  <br>
+  This error makes sense because the API is the <em>only</em> thing in the container.
+  It's trying to access the db on the local machine and of course, there is none.
+  <br>
+  So in the next part, I will containerize my db.
+</p>
+
+<h4>References</h4>
+<ul>
+  <li><a href="https://docs.docker.com/samples/dotnetcore/">Docker official docs for ASP.NET Core</a></li>
+  <li><a href="https://blog.sixeyed.com/understanding-microsofts-docker-images-for-net-apps/">Understanding Microsoft's Docker Images for .NET Apps</a></li>
+</ul>
+
+  </article>
+</div>
+        </main>
+
+      </div>
+    </div><footer>
+    <!--<ul><li><a href="https://github.com/ericnjuki"><svg class="svg-icon"><use xlink:href="/devclave/assets/icons/minima-social-icons.svg#github"></use></svg> <span class="username">ericnjuki</span></a></li><li><a href="https://www.twitter.com/ericnjuki"><svg class="svg-icon"><use xlink:href="/devclave/assets/icons/minima-social-icons.svg#twitter"></use></svg> <span class="username">ericnjuki</span></a></li></ul>
+-->
+    <!-- <a class="typical-link" href="/devclave/feed.xml">subscribe via RSS</a> -->
+    <svg class="svg-icon"><use xlink:href="/devclave/assets/icons/minima-social-icons.svg#twitter"></use></svg> 
+    <a class="typical-link" href="https://www.twitter.com/ericnjuki">ericnjuki</a>
+    <svg class="svg-icon"><use xlink:href="/devclave/assets/icons/minima-social-icons.svg#github"></use></svg>
+    <a class="typical-link" href="https://github.com/ericnjuki">ericnjuki</a>
+    <a class="typical-link" style="margin-left: 2em;" href="/devclave/about">about</a> 
+    <p>copyright ( ͡° ͜ʖ ͡°) 2022 devclave</p>
+</footer></div>
+</body>
+
+</html>

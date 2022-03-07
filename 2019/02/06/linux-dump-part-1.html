@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang=" en "><head >
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>Linux Notes | devclave</title>
+<meta name="generator" content="Jekyll v3.7.4" />
+<meta property="og:title" content="Linux Notes" />
+<meta name="author" content="eric_njuki" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="There was an attempt (by me) to ‘know linux’…" />
+<meta property="og:description" content="There was an attempt (by me) to ‘know linux’…" />
+<link rel="canonical" href="ericnjuki.github.io/devclave/2019/02/06/linux-dump-part-1.html" />
+<meta property="og:url" content="ericnjuki.github.io/devclave/2019/02/06/linux-dump-part-1.html" />
+<meta property="og:site_name" content="devclave" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-02-06T18:00:00+03:00" />
+<script type="application/ld+json">
+{"datePublished":"2019-02-06T18:00:00+03:00","@type":"BlogPosting","dateModified":"2019-02-06T18:00:00+03:00","mainEntityOfPage":{"@type":"WebPage","@id":"ericnjuki.github.io/devclave/2019/02/06/linux-dump-part-1.html"},"url":"ericnjuki.github.io/devclave/2019/02/06/linux-dump-part-1.html","author":{"@type":"Person","name":"eric_njuki"},"description":"There was an attempt (by me) to ‘know linux’…","headline":"Linux Notes","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/devclave/assets/css/main.css?1646656904"><link type="application/atom+xml" rel="alternate" href="ericnjuki.github.io/devclave/feed.xml" title="devclave" /></head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-push-2 wrapper"><header role="banner">
+  <nav>
+    <h1><a href="/devclave/">devclave</a></h1>
+  </nav>
+</header><main aria-label="Content">
+          <div class="article-content">
+  <article>
+    <h1>Linux Notes</h1><span class="article-metadata">Feb 6, 2019</span>
+    <!-- <span class="article-metadata">by<span class="by"> eric_njuki</span></span> -->
+    <p><span class="dropcaps">T</span>here was an attempt (by me) to ‘know linux’…</p>
+
+<h3 id="contents">Contents</h3>
+<ul>
+  <li><a href="#printing">Printing</a>, <a href="#gotchas">printing gotchas</a>, <a href="#errors-you-might-encounter-while-printing">printing errors</a></li>
+  <li><a href="#remote-access">Remote Access</a>, <a href="#ssh-errors">ssh Errors</a></li>
+  <li><a href="#desktop-environments">Desktop Environments</a>, <a href="#desktop-environments-display-mangers-window-managers">DE, DM, WM?</a></li>
+  <li><a href="#little-things">Specific things</a>: <a href="#disabling-user-list-at-ubuntu-login-screen">disabling users list on ubuntu login screen</a>, <a href="#running-gedit-in-the-background-from-terminal">running apps from terminal in background</a>, <a href="#make-ubuntu-say-things">make ubuntu say stuff</a>, <a href="#check-linux-distro">check linux distro</a>, <a href="#get-ip-address-and-hostname">get IP and hostname</a>, <a href="#open-a-file-in-notepad-using-cmd">open notepad++ from cli</a>, <a href="#copy-files-to-ftp-server-in-windows">copy files to ftp server(windows)</a>, <a href="#VSCode code snippets">VSCode Code Snippets</a></li>
+  <li><a href="#commands">Commands dump</a></li>
+  <li><a href="#troubleshooting">Trouble shooting</a>, <a href="#opensuse">OpenSUSE</a>, <a href="#booting-to-virtual-terminal">Booting to virtual terminal</a></li>
+  <li><a href="#references">References</a></li>
+</ul>
+
+<!-- region printing -->
+<h3 id="printing">Printing</h3>
+
+<p>The recommended way to print in ubuntu is to use CUPS (Common Unix Printing System) as opposed to the (old) BSD printing system.
+You can read more about printing systems <a href="https://www.linuxjournal.com/article/6729">here</a></p>
+
+<p>First you need to install CUPS</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">sudo </span>apt install cups</code></pre></figure>
+
+<p>The (old) BSD system uses <code class="highlighter-rouge">lp</code> and <code class="highlighter-rouge">lpr</code> commands to print. Cups has its own mappings of these same commands and it is therefore favorable to use them. You need to install them first:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">sudo </span>apt install cups-bsd</code></pre></figure>
+
+<p>You can now print stuff</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># print file with default settings (default printer, queue etc)</span>
+lp file
+
+<span class="c"># print to specific printer/queue</span>
+lp file <span class="nt">-d</span> &lt;printer-name&gt;/&lt;queue&gt;
+
+<span class="c"># using lpr</span>
+lpr file
+
+<span class="c"># specifics</span>
+lpr file <span class="nt">-P</span> &lt;printer-name&gt;/&lt;queue&gt;</code></pre></figure>
+
+<!-- TODO: difference between lp and lpr -->
+<h4 id="gotchas">Gotchas</h4>
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">lp</code> and <code class="highlighter-rouge">lpr</code> can only print PDF, ps (PostSript) and plain text files</p>
+  </li>
+  <li>
+    <p>It is not possible to use <code class="highlighter-rouge">lp</code> or <code class="highlighter-rouge">lpr</code> to print to a printer directly using its IP</p>
+  </li>
+  <li>
+    <p>Also, if you don’t know what your printer name is, you can find this and more printing commands at the <a href="#printing-commands">commands section</a> of this page.</p>
+  </li>
+  <li>
+    <p>I don’t know difference between <code class="highlighter-rouge">lp</code> and <code class="highlighter-rouge">lpr</code> for now…</p>
+  </li>
+  <li>
+    <p>Here’s also some stuff I ended up installing while trying to get printing to work:</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">sudo </span>apt install cups-filters libstdc++5:i386</code></pre></figure>
+
+<h4 id="errors-you-might-encounter-while-printing">errors you might encounter while printing:</h4>
+<h6 id="not-printing">not printing</h6>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># clear /var/spool/cups</span>
+rm <span class="nt">-rf</span> /var/spool/cups/<span class="k">*</span></code></pre></figure>
+
+<h6 id="lp-and-lpr-not-working"><code class="highlighter-rouge">lp</code> and <code class="highlighter-rouge">lpr</code> not working</h6>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># install cups-bsd "This package provides the BSD commands for interacting with CUPS: </span>
+<span class="c"># /usr/bin/lpqa /usr/bin/lpr /usr/bin/lprm /usr/sbin/lpc"</span>
+<span class="nb">sudo </span>apt install cups-bsd</code></pre></figure>
+
+<h5 id="none-of-these-have-solved-my-problems">none of these have solved my problems</h5>
+<p>Check CUPS logs (if you have CUPS installed) which can be found here: 
+<code class="highlighter-rouge">found in /var/log/cups/error_log</code></p>
+
+<p>Look <a href="https://wiki.ubuntu.com/DebuggingPrintingProblems">here</a> (official ubuntu page on debugging printing problems)
+<!-- endregion printing --></p>
+
+<!-- region remote-access -->
+<h3 id="remote-access">Remote Access</h3>
+
+<h4 id="using-ssh-passwordless-ssh-login">using ssh (passwordless ssh login)</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># solution 1: one-liner</span>
+sshpass <span class="nt">-p</span> <span class="s1">'password'</span> ssh user@host</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># solution 2: safer</span>
+<span class="c"># 1 create ~/.ssh on target PC if it does not exist</span>
+ssh user@host mkdir <span class="nt">-p</span> .ssh <span class="c"># enter password</span>
+
+<span class="c"># 2 exit and generate private/public key pair on your pc</span>
+ssh-keygen <span class="nt">-t</span> rsa
+
+<span class="c"># 3 copy your generated public key to the authorized_keys file in .ssh folder of host</span>
+<span class="nb">cat</span> .ssh/public_key.pub | ssh user@host <span class="s1">'cat &gt;&gt; .ssh/authorized_keys'</span>
+
+<span class="c"># 4 set permissions on host .ssh folder and authorized_keys file</span>
+<span class="c"># this is important, otherwise ssh will always require a password</span>
+<span class="c"># from SO: "~, ~/.ssh and ~/.ssh/authorized_keys must be writable only by you (700 - 755)</span>
+<span class="c"># "your ~/.ssh/authorized_keys must be readable (at least 400) but writeable (600)</span>
+<span class="c"># if you'll need to add more keys to it</span>
+ssh user@host <span class="s2">"chmod 700 .ssh; chmod 640 .ssh/authorized_keys"</span>
+
+<span class="c"># 2.5 OR, after generating the key in step 2, just do this which will do step 3 and 4 for you</span>
+ssh-copy-id user@host <span class="c"># enter password</span>
+
+<span class="c"># 2.5 OR if your server uses custom port no:</span>
+ssh-copy-id <span class="s2">"user@host -p 1234"</span></code></pre></figure>
+
+<p>..aand you’re done, you can now login to the remote without having to input password with:
+ssh user@host</p>
+
+<h4 id="ssh-errors">ssh errors</h4>
+<p>-Attempting to ssh into windows:</p>
+
+<p><code class="highlighter-rouge">"Unable to negotiate with &lt;IP&gt; port 22: no matching cipher found. Their offer: aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc"</code></p>
+
+<p>-FIX:
+check which ciphers your client supports:</p>
+
+<p><code class="highlighter-rouge">ssh -Q cipher</code></p>
+
+<p>if any of the ciphers are also supported by the server (Their offer: …), then you can force the use of those specific ciphers:</p>
+
+<p><code class="highlighter-rouge">ssh -c aes256-cbc usr@host</code>
+<!-- endregion remote-access --></p>
+
+<!-- region desktop-environments -->
+<h3 id="desktop-environments">Desktop environments</h3>
+<p>Stumbled on these when trying to figure out how to speed up a slow machine.
+Here’s my general assessment of popular linux DEs based on a quick read:</p>
+<h5 id="kde">KDE</h5>
+<ul>
+  <li>Robust and highly customizable</li>
+  <li>Heavy and clunky</li>
+  <li>OpenSUSE, Kubuntu</li>
+</ul>
+
+<h5 id="gnome-3">Gnome (3)</h5>
+<ul>
+  <li>Modern, Graphically heavy</li>
+  <li>Mother of Cinammon, Unity</li>
+  <li>Debian, Fedora, Ubuntu Gnome</li>
+  <li>Gnome 2, though deprecated is much more lightweight</li>
+</ul>
+
+<h5 id="mate">MATE</h5>
+<ul>
+  <li>Based on Gnome 2</li>
+  <li>Built to be lightweight</li>
+  <li>Kind on memory</li>
+  <li>Highly customizable</li>
+  <li>Ubuntu MATE</li>
+</ul>
+
+<h5 id="the-rest">The rest</h5>
+<p>Cinammon (linux Mint), LXDE (Lubuntu, lightweight), Xfce (Xubuntu, Manjaro, lightweight), Pantheon (Elementary OS, beautiful)</p>
+
+<h5 id="lightdmgdm">lightdm/gdm</h5>
+<p>-LightDM is an x display manager that aims to be lightweight, fast, extensible and multi-desktop
+-gdm (the GNOME Display Manager) is a display manager (a graphical login program) for the windowing systems X11 and Wayland.It is a highly configurable reimplementation of xdm, the X Display Manager</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># Can be changed by:</span>
+<span class="nb">sudo </span>dpkg-reconfigure gdm <span class="c"># (if gdm is already installed)</span></code></pre></figure>
+
+<h4 id="desktop-environments-display-mangers-window-managers">Desktop Environments, Display Mangers, Window Managers?</h4>
+<p>from <a href="https://unix.stackexchange.com/questions/20385/windows-managers-vs-login-managers-vs-display-managers-vs-desktop-environment?rq=1">StackOverflow</a>:</p>
+
+<ul>
+  <li>Xorg, XFree86 and X11 are display servers. This creates the graphical environment.
+[gkx]dm (and others) are display managers. A login manager is a synonym. This is the first X program run by the system if the system (not the user) is starting X and allows you to log on to the local system, or network systems.</li>
+  <li>A window manager controls the placement and decoration of windows. That is, the window border and controls are the decoration. Some of these are stand alone (WindowMaker, sawfish, fvwm, etc). Some depend on an accompanying desktop environment.</li>
+  <li>
+    <p>A desktop environment such as XFCE, KDE, GNOME, etc. are suites of applications designed to integrate well with each other to provide a consistent experience.</p>
+  </li>
+  <li>In theory (and mostly so in practice) any of those components are interchangeable. You can run kmail using GNOME with WindowMaker on Xorg.</li>
+</ul>
+
+<!-- endregion desktop-environments -->
+
+<!-- region little-things -->
+<h3 id="little-things">Little things</h3>
+<h5 id="disabling-user-list-at-ubuntu-login-screen">Disabling user list at ubuntu login screen</h5>
+<p><em>one liner:</em></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sed <span class="nt">-i</span> <span class="s1">'s@# \[org\/gnome\/login-screen\]@[org/gnome/login-screen]@'</span> /etc/gdm3/greeter.dconf-defaults <span class="o">&amp;&amp;</span> sed <span class="nt">-i</span> <span class="s1">'s@# disable-user-list=true@disable-user-list=true@'</span> /etc/gdm3/greeter.dconf-defaults<span class="p">;</span> init 6</code></pre></figure>
+
+<p><em>manually:</em></p>
+
+<p>edit <code class="highlighter-rouge">/etc/gdm3/greeter.dconf-defaults</code> and uncomment the following lines:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">disable-user-list<span class="o">=</span><span class="nb">true</span>
+
+<span class="o">[</span>org/gnome/login-screen]</code></pre></figure>
+
+<p>Then restart</p>
+
+<h5 id="running-gedit-in-the-background-from-terminal">Running gedit in the background from terminal</h5>
+<p><code class="highlighter-rouge">gedit &amp;</code><br />
+OR<br />
+<code class="highlighter-rouge">setsid gedit # runs a program in a new session</code></p>
+
+<h5 id="make-ubuntu-say-things">Make Ubuntu say things</h5>
+<p><code class="highlighter-rouge">sudo apt install gnustep-gui-runtime</code>
+<code class="highlighter-rouge">say "You can't handle the truth"</code></p>
+
+<h5 id="check-linux-distro">Check linux distro</h5>
+<p><code class="highlighter-rouge">python -mplatform | grep -iw KEYWORD # KEYWORD could be 'ubuntu' or 'opensuse' etc</code></p>
+
+<h5 id="get-ip-address-and-hostname">Get IP address and hostname</h5>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">  hostname <span class="c"># prints hostname</span>
+
+  hostname <span class="nt">-I</span> <span class="c"># prints IP address</span>
+
+  <span class="c"># if the above (for IP) doesn't work e.g. in OpenSUSE, try this:</span>
+  ifconfig <span class="nt">-a</span> | <span class="nb">grep</span> <span class="nt">-iw</span> inet | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">'127.0.0.1'</span> | awk <span class="s1">'{ print $2}'</span> | cut <span class="nt">-f2-</span> <span class="nt">-d</span>:
+
+  <span class="c"># let's deconstruct that...</span>
+
+  ifconfig <span class="nt">-a</span> <span class="c"># gives a whole bunch of info related to currently connected network devices</span>
+
+  <span class="c"># '|' pipes (sends) the output of ifconfig -a to the next command:</span>
+  <span class="nb">grep</span> <span class="nt">-iw</span> inet 
+  <span class="c"># returns every line that has 'inet' in it. </span>
+  <span class="c"># -i = case-insensitive match (openSUSE gives its result in all caps, ubuntu does not)</span>
+  <span class="c"># -w = exact word match (otherwise grep matches things like inet6 or inetBLA which lie outside our interest)</span>
+
+  <span class="c"># the resulting lines get piped to:</span>
+  <span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">'127.0.0.1'</span> 
+  <span class="c"># grep -v is a reverse match i.e "return all lines that DO NOT have this"</span>
+  <span class="c"># '127.0.0.1' is... I forgot what's special about it, but we don't want it (TODO)</span>
+
+  <span class="c"># i forgot what the awk does also... (TODO)</span>
+  <span class="c"># ok so after the awk command, the result looks something like this:</span>
+
+  addr: X.X.X.X
+
+  <span class="c"># so we want to remove the 'addr: ' part which is why we pipe that result to cut:</span>
+  cut <span class="nt">-f2-</span> <span class="nt">-d</span>:
+  <span class="c"># read about the cut in the commands section below, but this cut splits its input into 2 fields</span>
+  <span class="c"># using a colon ':' as the delimiter and returns the second field (the part after the colon, which is the actual IP):</span>
+  X.X.X.X</code></pre></figure>
+
+<h5 id="open-a-file-in-notepad-using-cmd">Open a file in notepad++ using cmd</h5>
+<p><code class="highlighter-rouge">start notepad++ &lt;filename&gt;</code></p>
+
+<h5 id="copy-files-to-ftp-server-in-windows">Copy files to ftp server in windows</h5>
+<p>-you can map a network location to a local drive in windows by going to THIS PC &gt; Map network drive
+-this would allow you to upload files to an ftp server if you map one. (why? because browsers have limited ftp support and can only download but not upload; other than browsers you’d need a 3rd party ftp client to upload to an ftp server)</p>
+
+<h5 id="vscode-code-snippets">VSCode code snippets:</h5>
+
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="w">  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"For_Loop"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"prefix"</span><span class="p">:</span><span class="w"> </span><span class="s2">"for"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="s2">"for (const ${2:element} of ${1:array}) {"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"</span><span class="se">\t</span><span class="s2">$0"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"}"</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+    </span><span class="s2">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"For Loop"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span></code></pre></figure>
+
+<p>KEY:</p>
+
+<p>-<code class="highlighter-rouge">${1-based_index_of_traversal:initial_default}</code> - placeholders (tab stops)</p>
+
+<p>-<code class="highlighter-rouge">$0</code> - final tab stop</p>
+
+<p>-<code class="highlighter-rouge">\t</code> - insert tab</p>
+
+<p>-each element of “body” is a line</p>
+
+<p>-You can also use this <a href="https://snippet-generator.app">snippet generator app</a></p>
+
+<h5 id="line-breaks-in-markdown">line breaks in markdown</h5>
+<p><a href="https://gist.github.com/shaunlebron/746476e6e7a4d698b373">From here</a></p>
+
+<figure class="highlight"><pre><code class="language-markdown" data-lang="markdown">  Hello  (&lt;-- two spaces)
+  World
+
+  Hello<span class="nt">&lt;br/&gt;</span>
+  World
+
+  Hello
+
+  World
+
+  hello<span class="err">\</span>
+  world
+  # (works only if it is the last character. If it has trailing spaces(e.g. "hello<span class="se">\ </span>"), backslash will be output)
+
+  Hello<span class="ni">&amp;nbsp;</span>
+  World
+
+  # all output the following:
+  Hello
+  World</code></pre></figure>
+
+<p>Hello</p>
+
+<p>World</p>
+
+<!-- endregion little-things -->
+
+<!-- region specific-cmds -->
+<h2 id="commands">Commands</h2>
+<h3 id="packages-commands">Packages Commands</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># remove packages (and uneeded dependencies):</span>
+<span class="nb">sudo </span>apt-get remove <span class="nt">--auto-remove</span> package-name
+
+<span class="c"># list all packages manually (intentionally) installed:</span>
+<span class="o">(</span>zcat <span class="k">$(</span><span class="nb">ls</span> <span class="nt">-tr</span> /var/log/apt/history.log<span class="k">*</span>.gz<span class="k">)</span><span class="p">;</span> <span class="nb">cat</span> /var/log/apt/history.log<span class="o">)</span> 2&gt;/dev/null |
+  egrep <span class="s1">'^(Start-Date:|Commandline:)'</span> |
+  <span class="nb">grep</span> <span class="nt">-v</span> aptdaemon |
+  egrep <span class="s1">'^Commandline:'</span>
+
+<span class="c"># search package</span>
+apt-cache search keyword
+<span class="c"># or</span>
+apt search keyword
+<span class="c"># (TODO: difference?)</span></code></pre></figure>
+
+<h3 id="printing-commands">Printing Commands</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># print</span>
+lp file <span class="o">[</span><span class="nt">-d</span> &lt;printer-alias&gt;/&lt;queue&gt;]
+
+<span class="c"># or</span>
+lpr file <span class="o">[</span><span class="nt">-P</span> &lt;printer-alias&gt;/&lt;queue&gt;]
+
+<span class="c"># hasn't worked for me...</span>
+<span class="nb">cat </span>you_file.prn | netcat <span class="nt">-w</span> 1 printer_ip 9100
+
+<span class="c"># checking info about printers</span>
+lpq <span class="o">(</span><span class="nt">-P</span> printer_alias<span class="o">)</span> <span class="c"># check printing queue</span>
+
+lprm <span class="c"># remove jobs from queue (that haven't been processed)</span>
+
+lpstat <span class="nt">-p</span> <span class="nt">-d</span> <span class="c"># will list all the available printers.</span>
+
+lpinfo <span class="nt">-v</span> <span class="c"># find out if your printer is detected by cups</span></code></pre></figure>
+
+<h3 id="file-management">File management</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cd</span> /path/to/go/to <span class="c"># change directory to path</span>
+
+<span class="nb">ls</span> <span class="c"># list files+folders in a directory</span>
+
+cp from/here to/here <span class="c"># copy</span>
+
+mv from/here to/here <span class="c"># move/rename file</span>
+
+<span class="c"># to move multiple files, you can use wildcards:</span>
+mv <span class="k">*</span>IDENTIFIER<span class="k">*</span> destination 
+<span class="c"># will move myIDENTIFIER, IDENTIFIERofmine </span>
+<span class="c"># i.e. zero or more characters, followed by IDENTIFIER, </span>
+<span class="c"># followed by zero or more characters to destination</span>
+
+<span class="c"># OR you can use -t flag to set destination:</span>
+mv <span class="nt">-t</span> DESTINATION file1 file2 file3</code></pre></figure>
+
+<h3 id="cat">cat</h3>
+<p>short for conCATenate</p>
+
+<p>can:
+-display file contents:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cat </span>file
+
+<span class="nb">cat</span> <span class="nt">-n</span> file <span class="c">#print line numbers</span>
+
+<span class="nb">cat</span> <span class="nt">-s</span> file <span class="c">#omit repeated empty lines</span>
+
+<span class="nb">cat</span> <span class="nt">-T</span> file <span class="c">#display 'tab' character as ^I (to distinguish them from space)</span>
+
+<span class="nb">cat</span> <span class="nt">-e</span> file <span class="c">#display end of line as $</span></code></pre></figure>
+
+<p>-copy file contents (you can use cp for this though)</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cat </span>file <span class="o">&gt;</span> file2 <span class="c">#if file2 exists it will be overwritten with file's contents</span></code></pre></figure>
+
+<p>-concatenate (of course)</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cat </span>file file2 <span class="c">#concats contents of both files and prints result on console</span></code></pre></figure>
+
+<p>-create files</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cat</span> <span class="o">&gt;</span> fileX
+<span class="c"># will create a new fileX, and give you the opportunity to write the contents of fileX. Once you are done, CTRL+D will save the file</span></code></pre></figure>
+
+<p>–you can use <code class="highlighter-rouge">&gt;&gt;</code> in place of <code class="highlighter-rouge">&gt;</code> to append to a file rather than overwrite it<br />
+– <code class="highlighter-rouge">&gt;&gt;</code> can also be used to create files</p>
+
+<h3 id="ssh">ssh</h3>
+<p>-List files in remote without logging in:<br />
+<code class="highlighter-rouge">ssh user@host ls path/to/directory</code></p>
+
+<p>-Copy files to and from remote using ssh:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">scp file remoteuser@remoteserver:path <span class="c"># from local to remote</span>
+
+scp remoteuser@remoteserver:path/to/file destination <span class="c"># from remote to local</span>
+
+scp <span class="o">[</span><span class="nt">-r</span><span class="o">]</span> <span class="k">*</span> remoteuser@remoteserver:path <span class="c"># copy all (can copy directories)</span></code></pre></figure>
+
+<p>-Create/Edit files in remote (using vim)</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="sb">`</span>vi scp://user@host:22//home/user/Documents/file1<span class="sb">`</span>
+<span class="c"># there are two slashes after the port number, 22 (which you can exclude btw) because the second one</span>
+<span class="c"># stands for root directory</span></code></pre></figure>
+
+<!-- endregion specific-cmds -->
+
+<!-- region troubleshooting -->
+<h3 id="troubleshooting">Troubleshooting</h3>
+<h4 id="opensuse">OpenSUSE</h4>
+<h5 id="booting-to-virtual-terminal">Booting to virtual terminal</h5>
+<p>Possible issues:</p>
+
+<h6 id="1-default-target-is-not-graphical">1. Default target is not graphical:</h6>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">  systemctl get-default <span class="c"># something other than graphical.target</span>
+  <span class="c"># FIX:</span>
+  systemctl set-default graphical.target</code></pre></figure>
+
+<p>if default is <code class="highlighter-rouge">graphical.target</code> then maybe the virtual terminal was activated by accident. Force revert to gui by doing:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">  CTRL+ALT+F7 <span class="c"># if doesn't work do CTRL+ALT+(F1-F12)</span>
+
+  <span class="c"># if that still doesn't work force booting to gui:</span>
+  init 5</code></pre></figure>
+
+<h6 id="2-insufficient-space-on-disk">2. Insufficient space on disk</h6>
+
+<p>Try running <code class="highlighter-rouge">startx</code> from the virtual terminal (after logging in to root)
+if you get an error saying “No space left on device” or “not enough space?”, it’s possible there’s a drive taking up too much space.</p>
+
+<p><br />Run <code class="highlighter-rouge">df</code> and scan for anything close to “100%” on the <code class="highlighter-rouge">use</code> column. For me everything in <code class="highlighter-rouge">dev/sda7</code> was full. This happended to be where <code class="highlighter-rouge">/var</code> was mounted.</p>
+
+<p><br />From <a href="https://superuser.com/questions/1127028/startx-doesnt-work-not-enough-space">StackOverflow</a>:</p>
+
+<p>-Run <code class="highlighter-rouge">sudo du -smx * .[^.]* | sort -n</code>
+-The <code class="highlighter-rouge">-s (--summarize)</code> option prints the total size for each file/directory.
+-The <code class="highlighter-rouge">-m</code> option prints the disk space used by each file/directory in Megabytes.</p>
+
+<p>-The <code class="highlighter-rouge">-x (--one-file-system)</code> option forces du to remain on the initial filesystem. This leaves out irrelevant (to this end!) info like all files in /run, /sys, /dev and/or /proc.</p>
+
+<p>-The <code class="highlighter-rouge">[^.].*</code> includes hidden files while excluding the parent directory, ..).</p>
+
+<p>-Finally, sorting the list numerically conveniently displays the directories taking up the most amount of space at the end of the list.</p>
+
+<p>-You then change into the directory taking up the most space and repeat the process for its subdirectories. Eventually you should find the culprit.</p>
+
+<p><br />For me though, <code class="highlighter-rouge">/var/tmp</code> was taking up 28 out of the allocated 30 GB for its partition.
+A simple <code class="highlighter-rouge">sudo rm -rf /var/tmp;init 6</code> fixed my issue
+<!-- endregion troubleshooting --></p>
+
+<h3 id="references">References</h3>
+<p><a href="https://unix.stackexchange.com/questions/131496/what-is-lightdm-and-gdm">SO</a> (LightDM vs GDM)</p>
+
+<p><a href="https://unix.stackexchange.com/questions/20385/windows-managers-vs-login-managers-vs-display-managers-vs-desktop-environment?rq=1">SO</a> (Desktop Environment vs Display Managers vs Window Manager)</p>
+
+<p>…to be continued</p>
+
+  </article>
+</div>
+        </main>
+
+      </div>
+    </div><footer>
+    <!--<ul><li><a href="https://github.com/ericnjuki"><svg class="svg-icon"><use xlink:href="/devclave/assets/icons/minima-social-icons.svg#github"></use></svg> <span class="username">ericnjuki</span></a></li><li><a href="https://www.twitter.com/ericnjuki"><svg class="svg-icon"><use xlink:href="/devclave/assets/icons/minima-social-icons.svg#twitter"></use></svg> <span class="username">ericnjuki</span></a></li></ul>
+-->
+    <!-- <a class="typical-link" href="/devclave/feed.xml">subscribe via RSS</a> -->
+    <svg class="svg-icon"><use xlink:href="/devclave/assets/icons/minima-social-icons.svg#twitter"></use></svg> 
+    <a class="typical-link" href="https://www.twitter.com/ericnjuki">ericnjuki</a>
+    <svg class="svg-icon"><use xlink:href="/devclave/assets/icons/minima-social-icons.svg#github"></use></svg>
+    <a class="typical-link" href="https://github.com/ericnjuki">ericnjuki</a>
+    <a class="typical-link" style="margin-left: 2em;" href="/devclave/about">about</a> 
+    <p>copyright ( ͡° ͜ʖ ͡°) 2022 devclave</p>
+</footer></div>
+</body>
+
+</html>

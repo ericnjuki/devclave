@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang=" en "><head >
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>Custom Model Binding ASP.NET Core 2.1 | devclave</title>
+<meta name="generator" content="Jekyll v3.7.4" />
+<meta property="og:title" content="Custom Model Binding ASP.NET Core 2.1" />
+<meta name="author" content="eric_njuki" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I was recently assigned a task by the throne: From a .NET backend, intercept incoming data from the client, filter out all the strings and perform various functions (Normalize names of people and places, trim whitespaces etc.) on the data before persisting it to a database. It was a fairly narrow domain, given I only had to deal with a single model class and just one action method. So I started preparing for my quest. I put together my gear: Visual Studio, Google Chrome and Postman, mounted my horse and headed West, on a quest to fulfill the King&#39;s wishes. My first stop was Redmond, the land of Microsoft Official Docs (which, by the way, I strongly suggest you read before proceeding). An informant there gave me a couple of helpful pointers which led to the following discoveries: The client has many avenues of sending data to your backend: Form data Http Request body URI (route values and query parameters) Whenever a Request hits the backend, before the values are available for use in the action method, model binding has to occur. Now the default model binder does an excellent job at this but sometimes you may need functionality not provided by default. Which is why the Redmondonian druids graciously provided any willing tinkerer the ability to forge their own model binders and bind their data to the models themselves! I gave the informant 2 gold coins for this valuable information and set out to plan the next phase of my quest. So now we have the required tools, a recipe and the blessings of our ancestors. Next, we need a plan!" />
+<meta property="og:description" content="I was recently assigned a task by the throne: From a .NET backend, intercept incoming data from the client, filter out all the strings and perform various functions (Normalize names of people and places, trim whitespaces etc.) on the data before persisting it to a database. It was a fairly narrow domain, given I only had to deal with a single model class and just one action method. So I started preparing for my quest. I put together my gear: Visual Studio, Google Chrome and Postman, mounted my horse and headed West, on a quest to fulfill the King&#39;s wishes. My first stop was Redmond, the land of Microsoft Official Docs (which, by the way, I strongly suggest you read before proceeding). An informant there gave me a couple of helpful pointers which led to the following discoveries: The client has many avenues of sending data to your backend: Form data Http Request body URI (route values and query parameters) Whenever a Request hits the backend, before the values are available for use in the action method, model binding has to occur. Now the default model binder does an excellent job at this but sometimes you may need functionality not provided by default. Which is why the Redmondonian druids graciously provided any willing tinkerer the ability to forge their own model binders and bind their data to the models themselves! I gave the informant 2 gold coins for this valuable information and set out to plan the next phase of my quest. So now we have the required tools, a recipe and the blessings of our ancestors. Next, we need a plan!" />
+<link rel="canonical" href="ericnjuki.github.io/devclave/2018/10/21/dotnet-core-model-binding.html" />
+<meta property="og:url" content="ericnjuki.github.io/devclave/2018/10/21/dotnet-core-model-binding.html" />
+<meta property="og:site_name" content="devclave" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-10-21T07:30:00+03:00" />
+<script type="application/ld+json">
+{"datePublished":"2018-10-21T07:30:00+03:00","@type":"BlogPosting","dateModified":"2018-10-21T07:30:00+03:00","mainEntityOfPage":{"@type":"WebPage","@id":"ericnjuki.github.io/devclave/2018/10/21/dotnet-core-model-binding.html"},"url":"ericnjuki.github.io/devclave/2018/10/21/dotnet-core-model-binding.html","author":{"@type":"Person","name":"eric_njuki"},"description":"I was recently assigned a task by the throne: From a .NET backend, intercept incoming data from the client, filter out all the strings and perform various functions (Normalize names of people and places, trim whitespaces etc.) on the data before persisting it to a database. It was a fairly narrow domain, given I only had to deal with a single model class and just one action method. So I started preparing for my quest. I put together my gear: Visual Studio, Google Chrome and Postman, mounted my horse and headed West, on a quest to fulfill the King&#39;s wishes. My first stop was Redmond, the land of Microsoft Official Docs (which, by the way, I strongly suggest you read before proceeding). An informant there gave me a couple of helpful pointers which led to the following discoveries: The client has many avenues of sending data to your backend: Form data Http Request body URI (route values and query parameters) Whenever a Request hits the backend, before the values are available for use in the action method, model binding has to occur. Now the default model binder does an excellent job at this but sometimes you may need functionality not provided by default. Which is why the Redmondonian druids graciously provided any willing tinkerer the ability to forge their own model binders and bind their data to the models themselves! I gave the informant 2 gold coins for this valuable information and set out to plan the next phase of my quest. So now we have the required tools, a recipe and the blessings of our ancestors. Next, we need a plan!","headline":"Custom Model Binding ASP.NET Core 2.1","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/devclave/assets/css/main.css?1646656904"><link type="application/atom+xml" rel="alternate" href="ericnjuki.github.io/devclave/feed.xml" title="devclave" /></head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-push-2 wrapper"><header role="banner">
+  <nav>
+    <h1><a href="/devclave/">devclave</a></h1>
+  </nav>
+</header><main aria-label="Content">
+          <div class="article-content">
+  <article>
+    <h1>Custom Model Binding ASP.NET Core 2.1</h1><span class="article-metadata">Oct 21, 2018</span>
+    <!-- <span class="article-metadata">by<span class="by"> eric_njuki</span></span> -->
+    <p>
+  <span class="dropcaps">I</span> was recently assigned a task by the throne: From a .NET backend, intercept incoming data from the client, filter
+  out all the strings and perform various functions (Normalize names of people and places, trim whitespaces etc.)
+  on the data before persisting it to a database.
+  It was a fairly narrow domain, given I only had to deal with a single model class and just one action method.
+  So I started preparing for my quest.
+</p>
+<br>
+<p>
+  I put together my gear: Visual Studio, Google Chrome and Postman,
+  mounted my horse and headed West, on a quest to fulfill the King's wishes.
+  My first stop was Redmond, the land of <a href="#">Microsoft Official Docs</a> 
+  (which, by the way, I strongly suggest you read before proceeding).
+  An informant there gave me a couple of helpful pointers which led to the following discoveries:
+</p>
+<br>
+<ol>
+  <li>
+    The client has many avenues of sending data to your backend:
+    <ul>
+        <li>Form data</li>
+        <li>Http Request body</li>
+        <li>URI (route values and query parameters)</li>
+    </ul>
+  </li>
+  <br>
+  <li>
+    <p>
+      Whenever a Request hits the backend, before the values are available for use
+      in the action method, model binding has to occur. Now the default model binder does an excellent job at this but
+      sometimes you may need functionality not provided by default.
+      <br> 
+      <br> 
+      Which is why the Redmondonian druids graciously provided any willing tinkerer the ability to forge their own
+      model binders and bind their data to the models themselves!
+    </p>
+  </li>
+</ol>
+<br>
+<p>
+  I gave the informant 2 gold coins for this valuable information and set out to plan the next phase of my quest.
+  So now we have the required tools, a recipe and the blessings of our ancestors. Next, we need a plan!
+</p>
+
+<h2 id="innerlink-the-plan">The Plan</h2>
+<h3>Part A: Understanding the Problem</h3>
+<p>The client will send me an object that looks like this:</p>
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="p">{</span>
+  <span class="s">"firstName"</span><span class="p">:</span> <span class="s">"HERMES"</span><span class="p">,</span>
+  <span class="s">"secondName"</span><span class="p">:</span> <span class="s">"Dandelion  "</span><span class="p">,</span> <span class="c1">// with trailing spaces</span>
+  <span class="s">"phoneNumber"</span><span class="p">:</span> <span class="m">0722222222</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>
+    ..which I will receive in this action method:
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="na">[Route("api/Person")]</span>
+<span class="k">public</span> <span class="k">class</span> <span class="nc">PersonController</span> <span class="p">:</span> <span class="n">Controller</span> <span class="p">{</span>
+  <span class="p">[</span><span class="nf">Route</span><span class="p">(</span><span class="s">"p"</span><span class="p">)]</span>
+  <span class="p">[</span><span class="n">HttpPost</span><span class="p">]</span>
+  <span class="k">public</span> <span class="n">IActionResult</span> <span class="nf">PostPerson</span><span class="p">(</span><span class="n">Person</span> <span class="n">somePerson</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// var result = personService.Add(somePerson);</span>
+      <span class="k">return</span> <span class="nf">Ok</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Person looks like this..</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp">  <span class="k">public</span> <span class="k">class</span> <span class="nc">Person</span> <span class="p">{</span>
+      <span class="k">public</span> <span class="kt">string</span> <span class="n">FirstName</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+      <span class="k">public</span> <span class="kt">string</span> <span class="n">SecondName</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+      <span class="k">public</span> <span class="kt">string</span> <span class="n">PhoneNumber</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+  <span class="p">}</span></code></pre></figure>
+
+<p>
+    It is important to note that the default model binder will work just fine in this case. 
+    But for this post, we want a custom model binder to:
+</p>
+<ul>
+  <li>proper case the names</li>
+  <li>remove the trailing space in the second name</li>
+</ul>
+<br>
+<p>Now that we understand the solution, let's brew up a solution...</p>
+
+<p><strong><a href="#innerlink-the-plan">⬆ back to top</a></strong></p>
+
+<h3>Part B: Coming up with a solution</h3>
+<p>Now, according to my informant at Redmond, in order to surmount this task I had to do two things:</p>
+<ul>
+    <li>
+        Create my custom model binder
+    </li>
+    <li>
+        Inform the framework of the existence of my custom model binder
+    </li>
+</ul>
+
+<h4>Creating our model binder</h4>
+<p>
+    To create custom model binders, we implement interface <code>IModelBinder</code> which exposes a single method <code>BindModelAsync()</code>.
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp">  <span class="k">public</span> <span class="k">class</span> <span class="nc">PersonBinder</span> <span class="p">:</span> <span class="n">IModelBinder</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="n">Task</span> <span class="nf">BindModelAsync</span><span class="p">(</span><span class="n">ModelBindingContext</span> <span class="n">bindingContext</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// don't worry we'll implement this shortly</span>
+    <span class="p">}</span>
+  <span class="p">}</span></code></pre></figure>
+
+<p>
+    Once we do that, we'll have to inform the framework on when to use our model binder
+</p>
+
+<h4>Informing the framework</h4>
+<p>There are at least two ways to tell the framework where to look for our custom binders:</p>
+<h5>1. Using decorators: </h5>
+<ul>
+    <li>
+        Decorating a property
+        <p>
+            ...with a ModelBinderAttribute specifying the type of our custom model binder.
+            Using our example we can have the binder be called to bind just the first name:
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">class</span> <span class="nc">Person</span> <span class="p">{</span>
+  <span class="p">[</span><span class="nf">ModelBinder</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">PersonModelBinder</span><span class="p">))]</span>
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">FirstName</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">SecondName</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">PhoneNumber</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+        </p>
+    </li>
+    <li>
+        Decorating an Action's parameter:
+        <p>...with the same attribute</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="n">IActionResult</span> <span class="nf">PostPerson</span><span class="p">([</span><span class="nf">ModelBinder</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">PersonModelBinder</span><span class="p">))]</span><span class="n">Person</span> <span class="n">content</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">Console</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="n">content</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nf">Ok</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+    </li>
+    <li>
+        Decorating the whole Class or Struct
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="na">[ModelBinder(typeof(PersonModelBinder))]</span>
+<span class="k">public</span> <span class="k">class</span> <span class="nc">Person</span> <span class="p">{</span>
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">FirstName</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">SecondName</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">PhoneNumber</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+    <p>
+        In this case the model binder is used for each occurrence of the target type. 
+        Unluckily, we can’t follow this path for system types (like string), as we can’t apply any attribute to it.
+    </p>
+  </li>
+</ul>
+
+<h5>2. Adding our binder to the pipeline</h5>
+<p>
+  The pipeline is...
+  There's a good read about the pipeline <a href="https://www.infoq.com/articles/aspnetcore-power-of-simplicity">here</a>.
+</p>
+<p>
+  With this approach we can set some rules that determine when our binder gets called.
+  We'll be going the pipeline way.
+</p>
+<br>
+<p>
+  When I asked my informant how to insert my custom binder into the pipeline he dismissed my proposal
+  saying "one does not simply add one's binder to the pipeline" gesticulating it in a way that I suppose
+  he thought I should understand. I did not.
+  <br>
+  <br>
+  He proceded to tell me that in order to ensure my binder gets
+  called, I need to create a provider for it. A provider is basically a method that returns an instance of my binder.
+  And this provider is what gets plugged into the pipeline.
+  A provider is created by implementing <code>IModelBinderProvider</code> that exposes a single method 
+  <code>GetBinder()</code> in which I should create a new instance of my binder class somehow.
+  <br>
+  This is also how the built-in framework binders are implemented. 
+</p>
+
+<h4>
+    Implementing IModelBinderProvider
+</h4>
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">class</span> <span class="nc">PersonModelBinderProvider</span> <span class="p">:</span> <span class="n">IModelBinderProvider</span> <span class="p">{</span>
+  <span class="k">public</span> <span class="n">IModelBinder</span> <span class="nf">GetBinder</span><span class="p">(</span><span class="n">ModelBinderProviderContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// will return our binder</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+<p>
+    To add it to the pipeline. Open <code>Startup.cs</code> and inside the <code>ConfigureServices()</code> method add this:
+</p>
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="n">services</span><span class="p">.</span><span class="nf">AddMvc</span><span class="p">(</span><span class="n">options</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="c1">// add custom binder to beginning of collection</span>
+    <span class="n">options</span><span class="p">.</span><span class="n">ModelBinderProviders</span><span class="p">.</span><span class="nf">Insert</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="k">new</span> <span class="nf">PersonModelBinderProvider</span><span class="p">());</span>
+<span class="p">});</span></code></pre></figure>
+
+<p>
+  As you can see, we're inserting our binder provider in the beginning of this collection. Why?
+  When evaluating model binders, the collection of providers is examined in order. 
+  The first provider that returns a binder is used. We don't know if another provider (such as the default one) 
+  is capable of providing a binder for our model (it is) and if so, what position it occupies in this collection, 
+  so armed with audacity we boldly insert it at the very beginning.
+  <br>
+  Now that we have a workable solution, let's implement it!
+</p>
+
+<p><strong><a href="#innerlink-the-plan">⬆ back to top</a></strong></p>
+
+<h5>
+    Part C: Implementing the solution
+</h5>
+<p>
+    We're going to add one more file. This file contains a definition for a custom attribute which we 
+    will need in our solution. 
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="n">StrFormatAttribute</span><span class="p">.</span><span class="n">cs</span>
+
+<span class="k">public</span> <span class="k">enum</span> <span class="n">ActionType</span> <span class="p">{</span>
+  <span class="n">ProperCase</span> <span class="p">=</span> <span class="m">0</span><span class="p">,</span>
+  <span class="n">RemoveExtraSpaces</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="na">[AttributeUsage(AttributeTargets.All)]</span>
+<span class="k">public</span> <span class="k">class</span> <span class="nc">StrFormatAttributeAttribute</span> <span class="p">:</span> <span class="n">Attribute</span> <span class="p">{</span>
+
+  <span class="k">public</span> <span class="nf">StrFormatAttributeAttribute</span><span class="p">([</span><span class="n">CallerMemberName</span><span class="p">]</span> <span class="kt">string</span> <span class="n">propertyName</span> <span class="p">=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{}</span>
+
+  <span class="k">public</span> <span class="n">ActionType</span> <span class="n">ActionType</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<h4>Implementing the provider</h4>
+<p>
+  Now we shall implement our provider first. Enter <code>PersonModelBinderProvider.cs</code>
+  The method there <code>GetBinder()</code> is supposed to return anything that inherits from <code>IModelBinder</code>.
+  Our custom model binder fits this description, so lets simply return an instance of it and see what happens:
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp">  <span class="k">public</span> <span class="n">IModelBinder</span> <span class="nf">GetBinder</span><span class="p">(</span><span class="n">ModelBinderProviderContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">{</span> 
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">PersonModelBinder</span><span class="p">();</span>
+  <span class="p">}</span></code></pre></figure>
+
+<p>
+  In order to test how this works out, our binder has to be implemented as well.
+  Since we haven't done that yet, we'll take a shortcut:
+  go over to <code>PersonModelBinder.cs</code> and return <code>Task.CompletedTask</code> in <code>BindModelAsync()</code>:
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp">  <span class="k">public</span> <span class="n">Task</span> <span class="nf">BindModelAsync</span><span class="p">(</span><span class="n">ModelBindingContext</span> <span class="n">bindingContext</span><span class="p">)</span> <span class="p">{</span> 
+    <span class="k">return</span> <span class="n">Task</span><span class="p">.</span><span class="n">CompletedTask</span><span class="p">;</span>
+  <span class="p">}</span></code></pre></figure>
+<p>
+  Set a breaking point on GetBinder() and run the application. 
+  Go over to postman and create this request:
+
+<figure class="highlight"><pre><code class="language-http" data-lang="http"><span class="nf">POST</span> <span class="nn">/api/Person/p</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">localhost:49506</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/x-www-form-urlencoded</span>
+
+secondName=Dandelion    &amp;firstName=HERMES&amp;phoneNumber=0722222222</code></pre></figure>
+  (note the four spaces after the word Dandelion)
+<img src="/devclave/assets/images/20181021_1_aspcore_model_binding_postman_screenshot_1.png" alt="postman request">
+</p>    
+
+<br>
+<h6>observations</h6>
+<p>
+    Our provider gets called once. 
+    Why?
+    Remember this collection:
+    <code>options.<b>ModelBinderProviders</b>.Insert(0, new PersonModelBinderProvider());</code>?
+    Whenever a model needs to be bound, the framework goes through this collection of binder providers looking
+    for one to provide a binder to that model. If one does provide a binder, it gets called and the framework
+    stops looking [for another provider for that given model].
+    <br>
+    Great! Now we know a little bit more about these things, let's experiment some more!
+    What happens when we don't provide a binder in our provider?
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="n">IModelBinder</span> <span class="nf">GetBinder</span><span class="p">(</span><span class="n">ModelBinderProviderContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">{</span> 
+  <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<h6>observations</h6>
+<p>
+  We will notice that the provider gets called 4 times.
+  Why? This is because our controller action method essentially expects four models to be bound:
+  <ul>
+    <li>The complex property of type Person</li>
+    <li>The FirstName property in Person</li>
+    <li>The SecondName property in Person</li>
+    <li>The PhonNumber property in Person</li>
+  </ul>
+  <br>
+  Yup, blew my mind too. So if you have another class say <code>Alien</code> which looks like this:
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">class</span> <span class="nc">Alien</span> <span class="p">{</span>
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">Race</span> <span class="p">{</span><span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;}</span>
+  <span class="k">public</span> <span class="kt">int</span> <span class="n">LimbsCount</span> <span class="p">{</span><span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>
+  and expect it in our controller..
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="n">IActionResult</span> <span class="nf">PostPerson</span><span class="p">(</span><span class="n">Person</span> <span class="n">somePerson</span><span class="p">,</span> <span class="n">Alien</span> <span class="n">alienX</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nf">Ok</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>
+  Our provider gets called 7 times!
+  So what happens after all these calls?
+  Since we're returning null in each of these calls, it means that our provider won't provide a binder and the
+  framework moves on to the next provider in the collection. (Eventually it will find the default provider which ought
+  to provide a default binder for our models).
+  <p><strong><a href="#innerlink-the-plan">⬆ back to top</a></strong></p>
+  <br>
+  Ok, this seems like the best place to place a few misplaced notes:
+  <br>
+  As a rule, once a provider provides a binder, its job is done and it doesn't get called again.
+  We have, however, demonstrated two exceptions to that rule: 
+  <ul>
+    <li>When the framework 'traverses' a complex property; The binder will be called for each of the 
+        sub-properties of the complex one, whether or not a binder is provided for any of them.
+    </li>
+    <li>
+        If the action method expects more than one parameter. Even if a binder is provided for the first parameter, complex property or not,
+        the provider is still called for the remaining parameters of the action.
+    </li>
+  </ul>
+  <br>
+  Ok enough experiments. Back to our problem.
+  In our case, we're looking to bind specific properties and not whole classes. So here's how we go about it.
+  Going to <code>Person.cs</code>, let's make a few changes:
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">class</span> <span class="nc">Person</span> <span class="p">{</span>
+  <span class="p">[</span><span class="nf">DataMember</span><span class="p">(</span><span class="n">Name</span> <span class="p">=</span> <span class="s">"firstName"</span><span class="p">)]</span>
+  <span class="p">[</span><span class="nf">StrFormatAttribute</span><span class="p">(</span><span class="n">ActionType</span> <span class="p">=</span> <span class="n">ActionType</span><span class="p">.</span><span class="n">ProperCase</span><span class="p">)]</span>
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">FirstName</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+
+  <span class="p">[</span><span class="nf">DataMember</span><span class="p">(</span><span class="n">Name</span> <span class="p">=</span> <span class="s">"secondName"</span><span class="p">)]</span>
+  <span class="p">[</span><span class="nf">StrFormatAttribute</span><span class="p">(</span><span class="n">ActionType</span> <span class="p">=</span> <span class="n">ActionType</span><span class="p">.</span><span class="n">RemoveExtraSpaces</span><span class="p">)]</span>
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">SecondName</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+
+  <span class="p">[</span><span class="nf">DataMember</span><span class="p">(</span><span class="n">Name</span> <span class="p">=</span> <span class="s">"PhoneNumber"</span><span class="p">)]</span>
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">PhoneNumber</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>
+  We've added two attributes to <code>FirstName</code> and <code>SecondName</code> one to <code>PhoneNumber</code>
+  <br>
+  The <code>DataMember</code> attribute is for data serialization to help the framework associate data from the client with
+  our model class. It's always a good idea to include serialization attributes to you Data Transfer Objects.
+  <br>
+  The other one is the custom attribute we created earlier that will help us determine which operations to
+  perform on which models.
+  <br>
+  Also by now I hope you've figured out that the term 'model' does not necessarily refer to a class. 
+  It can be used to refer to a property as well.
+  Depending on where you learned .NET from this can be quite the ambiguous term.
+  <br>
+  <br>
+  Ok let's implement our provider, for real now:
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="n">IModelBinder</span> <span class="nf">GetBinder</span><span class="p">(</span><span class="n">ModelBinderProviderContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">context</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nf">ArgumentNullException</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">context</span><span class="p">));</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="n">Metadata</span><span class="p">.</span><span class="n">IsComplexType</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="kt">var</span> <span class="n">propertyInfosOfParent</span> <span class="p">=</span> <span class="n">context</span><span class="p">.</span><span class="n">Metadata</span><span class="p">.</span><span class="n">ContainerType</span><span class="p">.</span><span class="nf">GetProperties</span><span class="p">();</span>
+  <span class="kt">var</span> <span class="n">propHasCustomAttribute</span> <span class="p">=</span> <span class="n">propertyInfosOfParent</span>
+        <span class="p">.</span><span class="nf">Where</span><span class="p">(</span><span class="n">prop</span> <span class="p">=&gt;</span> <span class="n">prop</span><span class="p">.</span><span class="nf">GetCustomAttributes</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">StrFormatAttributeAttribute</span><span class="p">),</span> <span class="k">false</span><span class="p">).</span><span class="n">Length</span> <span class="p">==</span> <span class="m">1</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">Any</span><span class="p">(</span><span class="n">prop</span> <span class="p">=&gt;</span> <span class="n">prop</span><span class="p">.</span><span class="n">Name</span> <span class="p">==</span> <span class="n">context</span><span class="p">.</span><span class="n">Metadata</span><span class="p">.</span><span class="n">PropertyName</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">propHasCustomAttribute</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">PersonModelBinder</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<h6>Phrase by phrase:</h6>
+
+<p>
+  We don't know where this context comes from and whether it will always be available, so we check it for null:
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">if</span> <span class="p">(</span><span class="n">context</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">throw</span> <span class="k">new</span> <span class="nf">ArgumentNullException</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">context</span><span class="p">));</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>
+  Earlier we noticed that our provider gets called for the complex type <code>Person</code>. We are not interested in the
+  whole <code>Person</code>, just its properties that are marked with our custom attribute.
+  So we return null on this call, and hence our provider will get called three more times, one for each property of
+  <code>Person</code>.
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">if</span> <span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="n">Metadata</span><span class="p">.</span><span class="n">IsComplexType</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>
+  At this point we are fairly certain that the <code>Metadata</code> describes some property in <code>Person</code>. So we get 
+  its parent container (<code>Person</code>) and extracting its properties. I know I know, Inception right?
+  Actually it's <code>Reflection</code>.
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp">  <span class="kt">var</span> <span class="n">propertyInfosOfParent</span> <span class="p">=</span> <span class="n">context</span><span class="p">.</span><span class="n">Metadata</span><span class="p">.</span><span class="n">ContainerType</span><span class="p">.</span><span class="nf">GetProperties</span><span class="p">();</span></code></pre></figure>
+
+<p>
+  Then, we use <code>Reflection</code> again to check if the property currently being examined has our custom attribute:
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="kt">var</span> <span class="n">propHasCustomAttribute</span> <span class="p">=</span> <span class="n">propertyInfosOfParent</span>
+  <span class="p">.</span><span class="nf">Where</span><span class="p">(</span><span class="n">prop</span> <span class="p">=&gt;</span> <span class="n">prop</span><span class="p">.</span><span class="nf">GetCustomAttributes</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">StrFormatAttributeAttribute</span><span class="p">),</span> <span class="k">false</span><span class="p">).</span><span class="n">Length</span> <span class="p">==</span> <span class="m">1</span><span class="p">)</span>
+  <span class="p">.</span><span class="nf">Any</span><span class="p">(</span><span class="n">prop</span> <span class="p">=&gt;</span> <span class="n">prop</span><span class="p">.</span><span class="n">Name</span> <span class="p">==</span> <span class="n">context</span><span class="p">.</span><span class="n">Metadata</span><span class="p">.</span><span class="n">PropertyName</span><span class="p">);</span></code></pre></figure>
+
+<p>
+  If it does, we return a binder for it:
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">if</span> <span class="p">(</span><span class="n">propHasCustomAttribute</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="nf">PersonModelBinder</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+<p> Else, and for all other unimaginable cases, we just return null:</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp">  <span class="k">return</span> <span class="k">null</span><span class="p">;</span></code></pre></figure>
+
+<p>
+  Phew! At this point we've made sure that our binder gets called for only the properties we want to manually bind.
+  Let's now go ahead and bind them.
+</p>
+<p><strong><a href="#innerlink-the-plan">⬆ back to top</a></strong></p>
+
+<h5>Side note</h5>
+<p>
+  Ok so in case you aren't caught up, our provider was providing a binder for multiple properties of <code>Person</code>.
+  This means that our binder gets called for each of these properties. (in our case, it's twice, for <code>FirstName</code> and <code>SecondName</code>).
+  So if we stop execution anywhere in this method and examine injected <code>ModelBindingContext</code>, we will see
+  that it contains information about the current Property.
+  <br>
+  <br>
+  This context also contains a value provider that grants us access to the values that the client sent us. 
+  This means all values that the framework could get from the request (from the body, forms, request params etc)
+  All you have to do is get them using their keys.
+  Now this is where things get a little bit...tricky. 
+</p>
+
+<h4>Implementing the binder</h4>
+<p>Now let's head over to <code>PersonModelBinder.cs</code>, and see how we implement <code>BindModelAsync()</code>: </p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="n">Task</span> <span class="nf">BindModelAsync</span><span class="p">(</span><span class="n">ModelBindingContext</span> <span class="n">bindingContext</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">bindingContext</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span>  
+      <span class="k">throw</span> <span class="k">new</span> <span class="nf">ArgumentNullException</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">bindingContext</span><span class="p">));</span> 
+              
+  <span class="kt">var</span> <span class="n">valueProviderResult</span> <span class="p">=</span> <span class="n">bindingContext</span><span class="p">.</span><span class="n">ValueProvider</span><span class="p">.</span><span class="nf">GetValue</span><span class="p">(</span><span class="n">bindingContext</span><span class="p">.</span><span class="n">ModelName</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">valueProviderResult</span> <span class="p">==</span> <span class="n">ValueProviderResult</span><span class="p">.</span><span class="n">None</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">Task</span><span class="p">.</span><span class="n">CompletedTask</span><span class="p">;</span>
+
+  <span class="kt">var</span> <span class="n">model</span> <span class="p">=</span> <span class="n">valueProviderResult</span><span class="p">.</span><span class="n">FirstValue</span><span class="p">;</span>
+
+  <span class="kt">var</span> <span class="n">propertyInfosOfParent</span> <span class="p">=</span> <span class="n">bindingContext</span><span class="p">.</span><span class="n">ModelMetadata</span><span class="p">.</span><span class="n">ContainerType</span><span class="p">.</span><span class="nf">GetProperties</span><span class="p">()</span>
+      <span class="p">.</span><span class="nf">Where</span><span class="p">(</span><span class="n">p</span> <span class="p">=&gt;</span> <span class="n">p</span><span class="p">.</span><span class="n">Name</span> <span class="p">==</span> <span class="n">bindingContext</span><span class="p">.</span><span class="n">ModelName</span><span class="p">)</span>
+      <span class="p">.</span><span class="nf">Where</span><span class="p">(</span><span class="n">p</span> <span class="p">=&gt;</span> <span class="n">p</span><span class="p">.</span><span class="nf">GetCustomAttributes</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">StrFormatAttributeAttribute</span><span class="p">),</span> <span class="k">true</span><span class="p">).</span><span class="n">Length</span> <span class="p">==</span> <span class="m">1</span><span class="p">)</span>
+      <span class="p">.</span><span class="nf">ToList</span><span class="p">();</span>
+
+  <span class="kt">var</span> <span class="n">currentProperty</span> <span class="p">=</span> <span class="n">propertyInfosOfParent</span><span class="p">.</span><span class="nf">FirstOrDefault</span><span class="p">();</span>
+  <span class="kt">var</span> <span class="n">customAttribute</span> <span class="p">=</span> <span class="p">(</span><span class="n">StrFormatAttributeAttribute</span><span class="p">)</span><span class="n">currentProperty</span><span class="p">?.</span><span class="nf">GetCustomAttributes</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">StrFormatAttributeAttribute</span><span class="p">),</span> <span class="k">false</span><span class="p">).</span><span class="nf">FirstOrDefault</span><span class="p">();</span>
+  
+  <span class="k">switch</span> <span class="p">(</span><span class="n">customAttribute</span><span class="p">?.</span><span class="n">ActionType</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="n">ActionType</span><span class="p">.</span><span class="n">RemoveExtraSpaces</span><span class="p">:</span>
+      <span class="n">model</span> <span class="p">=</span> <span class="n">Regex</span><span class="p">.</span><span class="nf">Replace</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s">@"\s+"</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">ActionType</span><span class="p">.</span><span class="n">ToProper</span><span class="p">:</span>
+      <span class="n">CultureInfo</span> <span class="n">cultureInfo</span> <span class="p">=</span> <span class="n">Thread</span><span class="p">.</span><span class="n">CurrentThread</span><span class="p">.</span><span class="n">CurrentCulture</span><span class="p">;</span>
+      <span class="n">TextInfo</span> <span class="n">textInfo</span> <span class="p">=</span> <span class="n">cultureInfo</span><span class="p">.</span><span class="n">TextInfo</span><span class="p">;</span>
+      <span class="n">model</span> <span class="p">=</span> <span class="n">textInfo</span><span class="p">.</span><span class="nf">ToTitleCase</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="nf">ToLower</span><span class="p">());</span>
+      <span class="k">break</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">bindingContext</span><span class="p">.</span><span class="n">Result</span> <span class="p">=</span> <span class="n">ModelBindingResult</span><span class="p">.</span><span class="nf">Success</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
+  <span class="k">return</span> <span class="n">Task</span><span class="p">.</span><span class="n">CompletedTask</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>
+  See there is a lot of logic that goes into determining which piece of data should be mapped to which model
+  whenever data hits the server. By hijacking this process we are putting ourselves up for this task of sifting
+  through the data available and trying to determine what goes where. This is hard to
+  pull off because it needs to be perfect and it needs to scale.
+  <br>
+  That's why we should try and bind as few models as we can ourselves
+  <br>
+  That's why we went to all the trouble of creating custom attributes and marking exactly which properties 
+  we absolutely needed to bind ourselves and left the rest for the framework to take care of.
+  <br>
+  <br>
+  Since we are the ones who built the client app (which we are simulating using Postman), we can easily get the
+  keys associated with the data sent by the client. We included these keys in <code>Data Serialization</code> attributes
+  to further guide the framework on what to put where.
+  We also gave our properties identical names to the fields sent from the client. This allows us to use the (framework-populated) key
+  <code>bindingContext.ModleName</code> to retrieve our data from the value provider.
+  So our plan is to get this value, check what operation we need to perform on it (using our custom attribute), perform it, and return the
+  modified model.
+</p>
+<br>
+<h6>Phrase by phrase:</h6>
+<p>
+  The first line is a customary null check.
+  We then proceed to get the current value from the value provider and null-check it as well.
+  If there is no value to bind we return <code>Task.CompletedTask</code>. Now since we hijacked the model binding
+  process, the framework has no way of knowing when we finish our binding, or what determines a successful
+  binding. This is why it provides the <code>bindingContext.Result</code> property. 
+  <br>
+  <br>
+  If we return <code>Task.CompletedTask</code> without setting this property, the framework assumes binding failed.
+  If binding succeeded, we will set it to <code>ModelBindingResult.Success(model)</code> where <code>model</code> is
+  our bound model.
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp">  <span class="k">if</span> <span class="p">(</span><span class="n">bindingContext</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nf">ArgumentNullException</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">bindingContext</span><span class="p">));</span>
+
+  <span class="kt">var</span> <span class="n">valueProviderResult</span> <span class="p">=</span> <span class="n">bindingContext</span><span class="p">.</span><span class="n">ValueProvider</span><span class="p">.</span><span class="nf">GetValue</span><span class="p">(</span><span class="n">bindingContext</span><span class="p">.</span><span class="n">ModelName</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">valueProviderResult</span> <span class="p">==</span> <span class="n">ValueProviderResult</span><span class="p">.</span><span class="n">None</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">Task</span><span class="p">.</span><span class="n">CompletedTask</span><span class="p">;</span>
+  <span class="kt">var</span> <span class="n">model</span> <span class="p">=</span> <span class="n">valueProviderResult</span><span class="p">.</span><span class="n">FirstValue</span><span class="p">;</span></code></pre></figure>
+
+<p>
+  For some reason the property currently being examined itself is not contained in the metadata.
+  We have to get it using reflection as we are here:
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp">  <span class="kt">var</span> <span class="n">propertyInfosOfParent</span> <span class="p">=</span> <span class="n">bindingContext</span><span class="p">.</span><span class="n">ModelMetadata</span><span class="p">.</span><span class="n">ContainerType</span><span class="p">.</span><span class="nf">GetProperties</span><span class="p">()</span>
+  <span class="p">.</span><span class="nf">Where</span><span class="p">(</span><span class="n">p</span> <span class="p">=&gt;</span> <span class="n">p</span><span class="p">.</span><span class="n">Name</span> <span class="p">==</span> <span class="n">bindingContext</span><span class="p">.</span><span class="n">ModelName</span><span class="p">)</span>
+  <span class="p">.</span><span class="nf">ToList</span><span class="p">();</span>
+  <span class="kt">var</span> <span class="n">currentProperty</span> <span class="p">=</span> <span class="n">propertyInfosOfParent</span><span class="p">.</span><span class="nf">FirstOrDefault</span><span class="p">();</span></code></pre></figure>
+
+<p>
+  Then we retrieve our custom attribute <code>StrFormatAttribute</code> since it contains really important
+  information (what operation to be performed on the model)
+  <br>
+  Once we do that, we determine what operation needs to be done, and do it:
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="kt">var</span> <span class="n">customAttribute</span> <span class="p">=</span> <span class="p">(</span><span class="n">StrFormatAttributeAttribute</span><span class="p">)</span><span class="n">currentProperty</span><span class="p">?.</span><span class="nf">GetCustomAttributes</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">StrFormatAttributeAttribute</span><span class="p">),</span> <span class="k">false</span><span class="p">).</span><span class="nf">FirstOrDefault</span><span class="p">();</span>
+<span class="k">switch</span> <span class="p">(</span><span class="n">customAttribute</span><span class="p">?.</span><span class="n">ActionType</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="n">ActionType</span><span class="p">.</span><span class="n">RemoveExtraSpaces</span><span class="p">:</span>
+    <span class="n">model</span> <span class="p">=</span> <span class="n">Regex</span><span class="p">.</span><span class="nf">Replace</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s">@"\s+"</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="k">case</span> <span class="n">ActionType</span><span class="p">.</span><span class="n">ToProper</span><span class="p">:</span>
+    <span class="n">CultureInfo</span> <span class="n">cultureInfo</span> <span class="p">=</span> <span class="n">Thread</span><span class="p">.</span><span class="n">CurrentThread</span><span class="p">.</span><span class="n">CurrentCulture</span><span class="p">;</span>
+    <span class="n">TextInfo</span> <span class="n">textInfo</span> <span class="p">=</span> <span class="n">cultureInfo</span><span class="p">.</span><span class="n">TextInfo</span><span class="p">;</span>
+    <span class="n">model</span> <span class="p">=</span> <span class="n">textInfo</span><span class="p">.</span><span class="nf">ToTitleCase</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="nf">ToLower</span><span class="p">());</span>
+    <span class="k">break</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>
+  Then you have to inform the framework whether or not your custom binding succeeded.
+</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp">  <span class="n">bindingContext</span><span class="p">.</span><span class="n">Result</span> <span class="p">=</span> <span class="n">ModelBindingResult</span><span class="p">.</span><span class="nf">Success</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
+  <span class="k">return</span> <span class="n">Task</span><span class="p">.</span><span class="n">CompletedTask</span><span class="p">;</span></code></pre></figure>
+
+<p>
+  Now as you noticed in <code>Person</code>, <code>PhoneNumber</code> isn't adorned with our custom <code>StrFormatAttribute</code>. And since we're
+  skipping over everything that doesn't wear this badge of honour, what happens to it?
+  <br>
+  See here, the framework graciously takes care of that for us, no problem.
+  <br>
+  <img src="/devclave/assets/images/20181021_1_aspcore_model_binding_bound_object_1.png" alt="framework binds the unbound">
+  <br>
+  Yup, if you don't commit to binding a model, the framework will do it for you, unless:
+  <ul>
+    <li>You provide a binder for a complex property i.e. If you provide a binder
+      for <code>Person</code> the framework expects you to bind and returned a full <code>Person</code>. If you only
+      bind <code>FirstName</code> and leave the rest unset, they will be null.
+    </li>
+  </ul>
+</p>
+<p><strong><a href="#innerlink-the-plan">⬆ back to top</a></strong></p>
+
+<h4>And Finally..</h4>
+<p>
+  after 3 days and 3 nights, having battled and triumphed over the vicious beasts in these lands called bugs.
+  Having consulted tomes written by many master druids that came before me, tomes like StackOverflow
+  and DotNetCurry. Having forged and reforged custom model binders in an effort to perfect the craft,
+  at last, I had completed my quest.
+  <br>
+  <br>
+  I mounted my horse and rode home as fast as I could. I was happy that, finally, the King would recognize my
+  efforts, acknowledge the importance of my work to the prosperity of the kingdom and even
+  consider me when the Knighting ceremony comes along.
+  <br>
+  <br>
+  This was not to be.
+  The king had completely forgotten that he had assigned me this task!
+  I was reprimanded for wasting the kingdom's resources and was sent off to clean the stables for a week!
+  *sigh*
+  <br>
+  Kings, and pawns.
+</p>
+<h5>The end</h5>
+<br>
+These are some notes I found while researching. They sounded important, so I put them here:
+<pre style="word-wrap: break-word; white-space: pre-wrap;">
+  * Custom model binders:
+      -Shouldn't attempt to set status codes or return results (for example, 404 Not Found). If model binding fails, an action filter or logic within the action method itself should handle the failure.
+      -Typically shouldn't be used to convert a string into a custom type, a TypeConverter is usually a better option.
+  
+  
+  * In previous versions of mvc, When binding a model:
+      -The framework would iterate through the collection of ModelBinderProviders until one of them returned a non-null IModelBinder instance.
+      -The matched binder would have access to the request and the value providers, which basically extracted and formatted data from the request.
+      -By default, a DefaultModelBinder class was used along with value providers that extracted data from the query string, form data, route values and even from the parsed JSON body.
+  
+  * In Core:
+      -Not every binding source is checked by default. 
+      Some model binders require you to specifically enable a binding source. 
+      For example, when binding from the Body, you need to add [FromBody] to your model/action parameter, otherwise the BodyModelBinder won’t be used. 
+      Same for binding from Header or from files
+      -There are value providers for route values, query string values and form values. 
+      Binders based on value providers can get data from any of these, but won’t be able to get data from other sources like the body for example. 
+      Although form data is posted in the body as a URL-encoded string, it is a special case parsed and interpreted as a value provider by the framework.
+</pre>
+<p>Happy Custom Model Binding!</p>
+<h4>References</h4>
+<ul>
+    <li><a href="https://docs.microsoft.com/en-us/aspnet/core/mvc/advanced/custom-model-binding?view=aspnetcore-2.1">Microsoft Docs</a></li>
+    <li><a href="http://www.dotnet-programming.com/post/2017/02/22/Custom-Model-Binding-in-Aspnet-Core-2-Getting-Time-2b-Client-Time-Zone-Offset.aspx">Explains binding process well</a></li>
+    <li><a href="http://www.dotnetcurry.com/aspnet-mvc/1368/aspnet-core-mvc-custom-model-binding">DotNetCurry</a></li>
+    <li><a href="https://weblog.west-wind.com/posts/2017/Sep/14/Accepting-Raw-Request-Body-Content-in-ASPNET-Core-API-Controllers">Explains Requests and data well</a></li>
+    <li><a href="https://tahirnaushad.com/2017/09/15/custom-model-binding-in-asp-net-core-2-0/">Great Example</a></li>
+    <li><a href="https://stackoverflow.com/questions/2186969/custom-model-binder-for-a-property">First saw the binder provider implemented in this question</a></li>
+</ul>
+<p><strong><a href="#innerlink-the-plan">⬆ back to top</a></strong></p>
+  </article>
+</div>
+        </main>
+
+      </div>
+    </div><footer>
+    <!--<ul><li><a href="https://github.com/ericnjuki"><svg class="svg-icon"><use xlink:href="/devclave/assets/icons/minima-social-icons.svg#github"></use></svg> <span class="username">ericnjuki</span></a></li><li><a href="https://www.twitter.com/ericnjuki"><svg class="svg-icon"><use xlink:href="/devclave/assets/icons/minima-social-icons.svg#twitter"></use></svg> <span class="username">ericnjuki</span></a></li></ul>
+-->
+    <!-- <a class="typical-link" href="/devclave/feed.xml">subscribe via RSS</a> -->
+    <svg class="svg-icon"><use xlink:href="/devclave/assets/icons/minima-social-icons.svg#twitter"></use></svg> 
+    <a class="typical-link" href="https://www.twitter.com/ericnjuki">ericnjuki</a>
+    <svg class="svg-icon"><use xlink:href="/devclave/assets/icons/minima-social-icons.svg#github"></use></svg>
+    <a class="typical-link" href="https://github.com/ericnjuki">ericnjuki</a>
+    <a class="typical-link" style="margin-left: 2em;" href="/devclave/about">about</a> 
+    <p>copyright ( ͡° ͜ʖ ͡°) 2022 devclave</p>
+</footer></div>
+</body>
+
+</html>
